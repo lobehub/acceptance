@@ -61,3 +61,7 @@ Follow the browser prompts to sign in to your LobeHub account.
 - [Project setup](skills/acceptance/references/project-adapter.md)
 - [Evidence guide](skills/acceptance/references/evidence.md)
 - [Report format](skills/acceptance/references/report.md)
+
+## License
+
+[Apache License 2.0](LICENSE).
