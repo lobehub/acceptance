@@ -18,17 +18,45 @@ Use it in your existing project alongside tests and code reviews. Your agent per
 
 ### Skill
 
-Run the command from the project you want to verify; add `--global` to make the skill available across projects.
+Stable releases include `acceptance-skill.json`: the complete `SKILL.md`, references,
+surfaces, scripts, and license, with the skill version and exact source commit.
+The latest non-prerelease GitHub release is the default installation source.
+
+Run these commands from the project you want to verify. The `lh` CLI requires
+a LobeHub account for installation and reporting:
 
 ```bash
-npx skills add lobehub/acceptance --skill acceptance
+lh login
+lh acceptance install
+lh acceptance update
+
+# Pin a version, or restore it after an update:
+lh acceptance update --skill-version 0.5.0
 ```
 
-To update an installed skill:
+`install` preserves existing files unless `--force` is supplied. `update` replaces
+the installed files and removes resources absent from the selected release.
+Both maintain agent links to `.agents/skills/acceptance`. Commit that generated
+directory if your project needs a reviewed, reproducible skill snapshot; edit the
+source here rather than an installed copy.
+
+All CLI versions, including `@lobehub/cli` 0.0.55, fetch through the authenticated
+`verify.getSkillBundle` endpoint. Once the server's release adapter is deployed,
+existing clients receive the latest stable bundle without upgrading. Selecting
+a version with `--skill-version` requires both the updated CLI and server; this
+flag is not available in CLI 0.0.55. Self-hosted servers need the adapter update
+too.
+
+A general skill installer also works. Pin the tag to use the same source version:
 
 ```bash
-npx skills update acceptance
+npx skills add https://github.com/lobehub/acceptance/tree/v0.5.0/skills/acceptance --skill acceptance
 ```
+
+An unpinned `npx skills add lobehub/acceptance --skill acceptance` follows the
+default branch, which may be newer than the stable release. Choose one installer
+for a directory: mixing branch-based updates and release-based `lh` updates can
+replace a newer development snapshot with the stable release.
 
 After installation or an update, reload skills or start a new agent session as required by your client.
 
@@ -44,6 +72,29 @@ lh login
 ```
 
 Follow the browser prompts to sign in to your LobeHub account.
+
+Skill versions and CLI versions are independent. Skill `0.5.0` does not imply
+CLI `0.5.0`. `lh acceptance create` is not available in CLI `0.0.55`; flow-first
+planning requires a CLI release containing that command (check
+`lh acceptance --help`). Its release is tracked separately in
+[LOBE-14280](https://linear.app/lobehub/issue/LOBE-14280).
+Creating acceptances and publishing reports always require authentication,
+regardless of how the skill was installed.
+
+## Publishing a skill version
+
+1. Update `skills/acceptance/SKILL.md` → `metadata.version` using `X.Y.Z`.
+2. Run `pnpm install`, `pnpm test`, and `pnpm bundle vX.Y.Z`.
+3. Commit the source changes, then create and push the matching `vX.Y.Z` tag.
+4. The release workflow validates the version and publishes
+   `dist/acceptance-skill.json` as a GitHub release asset.
+
+The bundle records the tagged commit in `source.commit`; the tag must match
+`metadata.version`. Publish a new version for changes rather than moving a tag
+or replacing a published asset. Commits to the default branch do not update
+`lh` installations until a stable release is published. The JSON keeps the
+legacy `identifier`, `name`, `version`, `content`, and `files` fields, so old
+clients and newer installers use the same artifact.
 
 ## Supported environments
 
