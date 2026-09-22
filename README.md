@@ -16,7 +16,19 @@ Use it in your existing project alongside tests and code reviews. Your agent per
 
 ## Installation
 
-### Skill
+### With a prompt
+
+Open the project you want to verify in your coding agent. Copy this prompt and let it complete the setup:
+
+```text
+Read https://app.lobehub.com/acceptance/skill.md and follow the instructions to install Acceptance.
+```
+
+Your agent will install the reporting CLI and the Acceptance skill, and guide you through signing in to LobeHub.
+
+### With commands
+
+#### Skill
 
 Run the command from the project you want to verify; add `--global` to make the skill available across projects.
 
@@ -32,7 +44,7 @@ npx skills update acceptance
 
 After installation or an update, reload skills or start a new agent session as required by your client.
 
-### Reporting CLI
+#### Reporting CLI
 
 Reports and evidence are published to [LobeHub](https://lobehub.com) through the `lh` CLI. Publishing requires a LobeHub account; the CLI requires Node.js 22.15 or later.
 
