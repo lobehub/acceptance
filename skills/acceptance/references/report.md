@@ -63,6 +63,13 @@ lh acceptance run result submit --run "$RUN" --item "$CHECK_ITEM_ID" …
 Prefer **A**: per-criterion submits without a plan produce checks with no
 declared intent, so the page has nothing to pair the outcome against.
 
+For a flow-first plan without an acceptance yet, use
+[`lh acceptance create`](../SKILL.md#optional-user-journey-flows) before publishing
+the graph. Unlike `acceptance run create` above, it returns an **Acceptance ID**
+without creating a round. Do not use the round ID from **B** in flow commands.
+If an acceptance was already created, pass `--acceptance <acceptanceId>` to ingest
+so the report joins that acceptance rather than creating another standalone one.
+
 ## Directory layout
 
 Rounds live under `.acceptances/`, grouped by the delivery they belong to:
