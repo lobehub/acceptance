@@ -6,6 +6,27 @@ Acceptance is an **Agent Skill** that helps coding agents verify features and fi
 
 Use it in your existing project alongside tests and code reviews. Your agent performs the verification; you decide whether the delivery meets your requirements.
 
+### Works with your agent
+
+Acceptance is built on the **Agent Skills** format, not tied to a single agent harness. Use it with **LobeHub, OpenClaw, Claude Code, Codex, Antigravity, Amp, Gemini CLI, Cursor, OpenCode, Hermes, Pi Agent, Grok Build**, or another harness that supports Agent Skills.
+
+<p>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/lobehub-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/lobehub-color.png" alt="LobeHub" title="LobeHub" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/openclaw-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/openclaw-color.png" alt="OpenClaw" title="OpenClaw" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/claudecode-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/claudecode-color.png" alt="Claude Code" title="Claude Code" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/codex-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/codex-color.png" alt="Codex" title="Codex" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/antigravity-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/antigravity-color.png" alt="Antigravity" title="Antigravity" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/amp-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/amp-color.png" alt="Amp" title="Amp" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/gemini-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/gemini-color.png" alt="Gemini CLI" title="Gemini CLI" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/cursor.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/cursor.png" alt="Cursor" title="Cursor" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/opencode.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/opencode.png" alt="OpenCode" title="OpenCode" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/hermesagent.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/hermesagent.png" alt="Hermes" title="Hermes" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/pi.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/pi.png" alt="Pi Agent" title="Pi Agent" width="32" height="32"></picture>&nbsp;&nbsp;
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/grok.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/grok.png" alt="Grok Build" title="Grok Build" width="32" height="32"></picture>
+</p>
+
+Skill installation paths and available verification tools vary by client. LobeHub provides the reporting and review workspace; you keep using your preferred agent.
+
 ## What it does
 
 - **Defines acceptance criteria:** turns requirements into observable outcomes.
