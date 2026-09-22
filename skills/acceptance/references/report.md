@@ -174,9 +174,13 @@ supersedes? }`.
    standalone acceptance. Pass `--subject` only when you were told which Task,
    Topic, or Document owns the work. To publish a repair into that same history, add
    `--acceptance <acceptanceId>` using the ID printed by the first ingest. The
-   command uploads cases + evidence + report body and prints
-   `/acceptance/<acceptanceId>` plus its `?r=<roundIndex>` snapshot form —
-   the only link the final reply exposes (SKILL.md, Final handoff).
+   command uploads cases + evidence + report body and returns `acceptanceUrl`
+   for the stable acceptance page, plus `roundUrl` for this round's snapshot
+   (`null` when no round index is available). Copy `acceptanceUrl` verbatim in
+   the final reply, and add `roundUrl` verbatim when it is non-null.
+   Never reconstruct the host, path, or round query: the CLI resolves the
+   configured server, including self-hosted installations. See
+   [Final handoff](../SKILL.md#final-handoff-mandatory).
 
 ## result.json schema
 

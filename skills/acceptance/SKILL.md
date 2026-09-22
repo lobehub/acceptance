@@ -348,16 +348,23 @@ explicitly; a missing type holds the delivery at `uncertain` no matter how good
 the work is.
 
 The final response MUST include the published acceptance URL together with the
-coverage result — never only a check-result id or a prose claim. Expose only the
-**acceptance** (`/acceptance/<acceptanceId>`), the stable cross-round decision
-surface; append `?r=<roundIndex>` for this round's fixed snapshot.
+coverage result — never only a check-result id or a prose claim. Copy the complete
+`acceptanceUrl` returned by `lh acceptance run ingest --json` verbatim: it is the
+stable cross-round decision surface. Add the returned `roundUrl` verbatim as this
+round's fixed snapshot when it is non-null; when it is null, the acceptance URL alone
+is the handoff.
+These URLs use the CLI's configured server, including self-hosted servers. Never
+hard-code a host, build a URL from an id, or append a round query yourself.
 Put no images, local paths, local file links, or internal run-page paths in the
 chat reply.
 
 Write the link as a plain-text line, never inside a fenced or inline code block — the
-chat client only linkifies plain text, and a code block makes it unclickable:
+chat client only linkifies plain text, and a code block makes it unclickable.
+Replace each placeholder below with the URL returned by the CLI; omit the `Round`
+line when `roundUrl` is null:
 
-Acceptance: <https://lobehub.com/acceptance/ACCEPTANCE_ID> (the placeholder is the id ingest printed; it stays inside the URL)
+Acceptance: <acceptanceUrl, verbatim>
+Round: <roundUrl, verbatim>
 Coverage: 2/2 criteria, all required evidence uploaded
 
 ## Portability rules
