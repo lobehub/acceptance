@@ -1,0 +1,16 @@
+{
+  "name": "acceptance",
+  "owner": {
+    "name": "LobeHub"
+  },
+  "metadata": {
+    "description": "Acceptance skills for product verification, evidence collection, and review with LobeHub."
+  },
+  "plugins": [
+    {
+      "name": "acceptance",
+      "source": "./",
+      "description": "Verify features and fixes against requirements, collect product evidence, and publish results for review with LobeHub."
+    }
+  ]
+}

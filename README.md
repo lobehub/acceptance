@@ -87,7 +87,30 @@ npx skills update acceptance
 
 This installs only the skill. To publish reports and evidence, install the `lh` CLI and sign in as shown above.
 
-After installation or an update with either method, reload skills or start a new agent session as required by your client.
+#### Claude Code plugin (alternative)
+
+In Claude Code, add this repository's marketplace and install the plugin:
+
+```text
+/plugin marketplace add lobehub/acceptance
+/plugin install acceptance@acceptance
+```
+
+The plugin bundles the same `skills/acceptance` skill and its supporting resources.
+Invoke it with `/acceptance:acceptance`, or ask Claude to verify a delivery and
+collect evidence. To publish reports and evidence, install the `lh` CLI and sign
+in as shown above; the plugin does not install the CLI.
+
+To update a plugin installed this way, run these commands in Claude Code:
+
+```text
+/plugin marketplace update acceptance
+/plugin update acceptance@acceptance
+```
+
+After installation or an update, reload skills or start a new agent session as
+required by your client. In Claude Code, run `/reload-plugins` when prompted, or
+start a new session.
 
 ## Supported environments
 
@@ -119,6 +142,30 @@ node --test tests/*.test.mjs
 The tests use a local mock CDP server and simulated macOS tools. They exercise
 installed copies from an unrelated working directory, with spaces in paths and
 without executable bits, including concurrent captures and preflight failures.
+
+With Claude Code installed, validate both plugin manifests from the repository
+root:
+
+```bash
+claude plugin validate .claude-plugin/plugin.json --strict
+claude plugin validate .claude-plugin/marketplace.json --strict
+```
+
+To try the plugin locally before publishing:
+
+```bash
+claude --plugin-dir .
+```
+
+Then invoke `/acceptance:acceptance`. Claude Code discovers the existing
+`skills/` directory automatically; no separate copy of the skill is needed.
+See the [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins)
+for the plugin layout and local development workflow.
+
+When releasing skill updates, keep the version in `.claude-plugin/plugin.json`
+in sync with `metadata.version` in `skills/acceptance/SKILL.md`. Bump the plugin
+version for every plugin release so installed users receive updates; the
+marketplace entry uses the version from `plugin.json`.
 
 ## License
 
