@@ -28,34 +28,45 @@ Your agent will install the reporting CLI and the Acceptance skill, and guide yo
 
 ### With commands
 
-#### Skill
+#### LobeHub CLI (recommended)
 
-Run the command from the project you want to verify; add `--global` to make the skill available across projects.
+Use the `lh` CLI to install the skill and publish reports and evidence to [LobeHub](https://lobehub.com). It requires Node.js 22.15 or later and a LobeHub account.
+
+Install the CLI, then run these commands from the project you want to verify. Follow the browser prompts from `lh login` to sign in before installing the skill:
+
+```bash
+npm install -g @lobehub/cli
+lh login
+lh acceptance install
+```
+
+The skill is installed in `.agents/skills/acceptance` from this repository's default branch. Existing files are skipped unless you pass `--force`.
+
+To update to the latest skill source:
+
+```bash
+lh acceptance update
+```
+
+Updates replace installed skill files, including local edits, and remove stale resources. Use `--dir <path>` with either command to target another project.
+
+#### Skills CLI (alternative)
+
+You can also install the skill with the Skills CLI. Run this command from the project you want to verify:
 
 ```bash
 npx skills add lobehub/acceptance --skill acceptance
 ```
 
-To update an installed skill:
+To update a skill installed this way:
 
 ```bash
 npx skills update acceptance
 ```
 
-After installation or an update, reload skills or start a new agent session as required by your client.
+This installs only the skill. To publish reports and evidence, install the `lh` CLI and sign in as shown above.
 
-#### Reporting CLI
-
-Reports and evidence are published to [LobeHub](https://lobehub.com) through the `lh` CLI. Publishing requires a LobeHub account; the CLI requires Node.js 22.15 or later.
-
-Install the CLI and sign in:
-
-```bash
-npm install -g @lobehub/cli
-lh login
-```
-
-Follow the browser prompts to sign in to your LobeHub account.
+After installation or an update with either method, reload skills or start a new agent session as required by your client.
 
 ## Supported environments
 
