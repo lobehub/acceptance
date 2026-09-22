@@ -85,6 +85,20 @@ After installation or an update with either method, reload skills or start a new
 - [Evidence guide](skills/acceptance/references/evidence.md)
 - [Report format](skills/acceptance/references/report.md)
 
+## Development checks
+
+Run the helper regression tests on macOS or Linux with Node.js 22.15 or later,
+Bash, and Python 3. No npm dependencies, running browser, display permission,
+LobeHub checkout, or account are needed:
+
+```bash
+node --test tests/*.test.mjs
+```
+
+The tests use a local mock CDP server and simulated macOS tools. They exercise
+installed copies from an unrelated working directory, with spaces in paths and
+without executable bits, including concurrent captures and preflight failures.
+
 ## License
 
 [Apache License 2.0](LICENSE).
