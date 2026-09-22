@@ -184,7 +184,32 @@ transitions or verification conditions. Do not move execution nodes or start a
 new round just to reorganize the checklist; those operations have different
 execution semantics.
 
-1. Use the named acceptance (or create one with `lh acceptance create --help`).
+1. Use the named acceptance, or create one before publishing the flow. If none
+   was named, first run `lh acceptance create --help` and confirm it shows
+   `Usage: lh acceptance create [options]` and `--requirement`. Parent-command
+   help or a zero exit code alone does not prove support. If unavailable, upgrade
+   `@lobehub/cli` to a release that supports this command and check again;
+   updating the skill alone does not upgrade the CLI. If still unavailable,
+   report flow-first creation as blocked. Do not invent a subject ID, upload an
+   empty report, or substitute `lh acceptance run create` (which creates a round).
+
+   ```bash
+   lh acceptance create --title "Checkout recovery" \
+     --requirement "Customers can recover from a declined payment and complete checkout" --json
+   ```
+
+   `--requirement` is a required, nonblank durable business goal; `--title` is
+   optional. Omit `--subject` for a fresh standalone subject, even when an ambient
+   topic exists. Pass `--subject task:<id>`, `topic:<id>`, `document:<id>`, or
+   `standalone:<id>` only for an explicitly supplied subject. Reusing a subject
+   preserves its recorded requirement, title, and state; it does not reopen it.
+   Creation does not create a verification round, report, results, or passing verdict.
+
+   The JSON contains `acceptanceId`, `acceptanceUrl`, `requirement`, `status`,
+   and `subject: { subjectType, subjectId }`. Use `acceptanceId` in all flow
+   commands below, **not** `subject.subjectId` or a verification run ID. Share
+   `acceptanceUrl` verbatim; it already uses the CLI's configured server.
+
    Write a JSON file with `definition: { title, entryNodeId, nodes, edges }`.
    Give nodes and edges stable UUIDs. Each node has `id` and exactly one of
    `criterionId` (existing check asset), `check: { id, title, definition }`
