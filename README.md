@@ -1,14 +1,79 @@
+<div align="center">
+
+![](https://github.com/user-attachments/assets/c38c3213-161f-4739-9b4a-e85254215a7b)
+
 # Acceptance
 
-**Give people evidence to review AI-built work.**
+**See the evidence before you accept AI-built work.**
 
-Acceptance is an **Agent Skill** that helps coding agents verify features and fixes against your requirements, collect evidence from the product, and publish results for review.
+Your agent says it's done.
+Acceptance shows you the screenshots and recordings, on one link your team can review, wherever the agent ran.
 
-Use it in your existing project alongside tests and code reviews. Your agent performs the verification; you decide whether the delivery meets your requirements.
+[Product][product] · [Skill][skill] · [Surfaces](#where-it-runs) · [Feedback][issues]
 
-### Works with your agent
+</div>
 
-Acceptance is built on the **Agent Skills** format, not tied to a single agent harness. Use it with **LobeHub, OpenClaw, Claude Code, Codex, Antigravity, Amp, Gemini CLI, Cursor, OpenCode, Hermes, Pi Agent, Grok Build**, or another harness that supports Agent Skills.
+Acceptance is open-source acceptance testing for AI coding agents, from LobeHub. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work, or send individual checks back.
+
+> “Done” is the agent’s word. “Accepted” is yours.
+
+You rarely know exactly what you want until you see it. Acceptance gives that moment a place: a report you can open from anywhere, review with your team, and that gets sharper every time you send something back.
+
+## Contents
+
+- [Why Acceptance](#why-acceptance)
+- [What it catches](#what-it-catches)
+- [How it works](#how-it-works)
+- [Works with your agent](#works-with-your-agent)
+- [Where it runs](#where-it-runs)
+- [Installation](#installation)
+- [Documentation](#documentation)
+- [Questions](#questions)
+- [Development](#development)
+- [License](#license)
+
+## Why Acceptance
+
+- **See the work, wherever it ran.** Background runs, cloud sandboxes, a machine with no screen. The agent publishes its screenshots and recordings to one link, so at 9 a.m. you can review what it finished at 2.
+- **It remembers what you sent back.** Every round leaves behind criteria, examples of what failed, and what changed. The agent checks them before its next handoff, so the same miss doesn’t come back.
+- **Review it together.** Design, product, and engineering open the same report. Mark a region, reply in the thread, and accept the checks you own. Every decision shows who made it.
+
+![](https://github.com/user-attachments/assets/1d5fc50a-a0da-4d18-bb9a-aa3e8f535d76)
+
+## What it catches
+
+Tests prove the code runs. They don't notice a clipped menu, a label that vanishes in dark mode, or a German button spilling off a 320px screen. Acceptance checks what a person would check, and shows you what it saw.
+
+- **Point at the exact pixel.** Draw a box on the screenshot and say what is wrong. The next round starts from that region, not from “it looks off”.
+- **Motion, on the record.** Drags, transitions, and loading states are recorded, so you can scrub to the frame where it jumps.
+- **Light and dark, side by side.** Every theme is captured in the same state, so contrast bugs can’t hide in the mode nobody opened.
+- **Long words, small screens.** Real locales at real widths. German at 320px is where buttons wrap and labels spill first.
+- **Keyboard, not just clicks.** Tab order, focus traps, and Esc are driven key by key, and every step is logged.
+- **Send back one check, keep the rest.** Each check keeps its own rounds. Fix what failed, and what you already accepted stays accepted.
+
+![](https://github.com/user-attachments/assets/68e34858-571e-4a5d-b8c8-0871e912ab47)
+
+## How it works
+
+Three steps from “done” to accepted. You describe the outcome. Your agent turns it into checks, exercises the product, and publishes a report. You review the evidence and decide.
+
+### `01` Say what done looks like
+
+Describe the outcome in plain words. The agent drafts checks you can edit before anything runs.
+
+### `02` Your agent runs the real product
+
+It opens the app, clicks through, resizes, switches themes, and captures every step it takes.
+
+### `03` You make the call
+
+Read what the agent observed next to the proof. Accept it, or send back that one check. Your note becomes a lesson for the next run.
+
+![](https://github.com/user-attachments/assets/0773d927-5638-4d8f-8656-fe0f5ffb1e88)
+
+## Works with your agent
+
+Any coding agent that can load skills and drive the surface you want to check. Use it with **LobeHub, OpenClaw, Claude Code, Codex, Antigravity, Amp, Gemini CLI, Cursor, OpenCode, Hermes, Pi Agent, Grok Build**, or another harness that supports Agent Skills.
 
 <p>
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/lobehub-color.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/lobehub-color.png" alt="LobeHub" title="LobeHub" width="32" height="32"></picture>&nbsp;&nbsp;
@@ -25,35 +90,43 @@ Acceptance is built on the **Agent Skills** format, not tied to a single agent h
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/grok.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/grok.png" alt="Grok Build" title="Grok Build" width="32" height="32"></picture>
 </p>
 
-Skill installation paths and available verification tools vary by client. LobeHub provides the reporting and review workspace; you keep using your preferred agent.
+Web checks run in a browser, CLI checks in the terminal, and native checks on the desktop or in the iOS Simulator. LobeHub provides the reporting and review workspace. You keep using your preferred agent.
 
-## What it does
+## Where it runs
 
-- **Defines acceptance criteria:** turns requirements into observable outcomes.
-- **Verifies product behavior:** exercises the relevant interfaces and user journeys.
-- **Collects evidence:** captures screenshots, recordings, audio, command output, and structured data.
-- **Publishes reviewable results:** brings together each check, its observations, and supporting evidence.
-- **Tracks follow-up verification:** keeps feedback and later rounds on the same acceptance page.
+The same report, on the surface your product uses. A web flow, a command, a desktop window, or the iOS Simulator. The evidence follows.
+
+| Environment | Coverage |
+| --- | --- |
+| [Web](skills/acceptance/surfaces/web.md) | Pages, flows, and layouts |
+| [CLI](skills/acceptance/surfaces/cli.md) | Commands, APIs, and data |
+| [Electron](skills/acceptance/surfaces/electron.md) | Windows, menus, and dialogs |
+| [macOS](skills/acceptance/surfaces/native.md) | Menu bar and OS interactions |
+| [iOS Simulator](skills/acceptance/surfaces/ios-simulator.md) | Gestures and device layouts |
+
+![](https://github.com/user-attachments/assets/fea4dc89-4d0d-4be0-8c6b-c8f358513dfc)
 
 ## Installation
 
-### With a prompt
+Install it where the work already lives. Add the skill to the project you want to check, then ask your agent to verify it.
 
-Open the project you want to verify in your coding agent. Copy this prompt and let it complete the setup:
+> [!IMPORTANT]
+>
+> Reload skills or start a new agent session after installation.
+
+Then ask your agent: “Use Acceptance to verify this feature against my requirements.”
+
+### `A` Ask your agent
+
+Paste this into your coding agent, inside the project you want to verify. It will install the CLI and skill, then guide you through signing in.
 
 ```text
 Read https://app.lobehub.com/acceptance/skill.md and follow the instructions to install Acceptance.
 ```
 
-Your agent will install the reporting CLI and the Acceptance skill, and guide you through signing in to LobeHub.
+### `B` LobeHub CLI
 
-### With commands
-
-#### LobeHub CLI (recommended)
-
-Use the `lh` CLI to install the skill and publish reports and evidence to [LobeHub](https://lobehub.com). It requires Node.js 22.15 or later and a LobeHub account.
-
-Install the CLI, then run these commands from the project you want to verify. Follow the browser prompts from `lh login` to sign in before installing the skill:
+Requires Node.js 22.15 or later and a LobeHub account. Run these commands in your project and finish the browser sign-in before installing the skill:
 
 ```bash
 npm install -g @lobehub/cli
@@ -71,9 +144,9 @@ lh acceptance update
 
 Updates replace installed skill files, including local edits, and remove stale resources. Use `--dir <path>` with either command to target another project.
 
-#### Skills CLI (alternative)
+### `C` Skills CLI
 
-You can also install the skill with the Skills CLI. Run this command from the project you want to verify:
+Installs the skill only. Run this from the project you want to verify:
 
 ```bash
 npx skills add lobehub/acceptance --skill acceptance
@@ -85,9 +158,11 @@ To update a skill installed this way:
 npx skills update acceptance
 ```
 
-This installs only the skill. To publish reports and evidence, install the `lh` CLI and sign in as shown above.
+> [!TIP]
+>
+> To publish reports and evidence, also install the LobeHub CLI and sign in using the commands in [`B`](#b-lobehub-cli).
 
-#### Claude Code plugin (alternative)
+### `D` Claude Code plugin
 
 In Claude Code, add this repository's marketplace and install the plugin:
 
@@ -96,10 +171,7 @@ In Claude Code, add this repository's marketplace and install the plugin:
 /plugin install acceptance@acceptance
 ```
 
-The plugin bundles the same `skills/acceptance` skill and its supporting resources.
-Invoke it with `/acceptance:acceptance`, or ask Claude to verify a delivery and
-collect evidence. To publish reports and evidence, install the `lh` CLI and sign
-in as shown above; the plugin does not install the CLI.
+The plugin bundles the same `skills/acceptance` skill and its supporting resources. Invoke it with `/acceptance:acceptance`, or ask Claude to verify a delivery and collect evidence. To publish reports and evidence, install the `lh` CLI and sign in as in [`B`](#b-lobehub-cli). The plugin does not install the CLI.
 
 To update a plugin installed this way, run these commands in Claude Code:
 
@@ -108,43 +180,62 @@ To update a plugin installed this way, run these commands in Claude Code:
 /plugin update acceptance@acceptance
 ```
 
-After installation or an update, reload skills or start a new agent session as
-required by your client. In Claude Code, run `/reload-plugins` when prompted, or
-start a new session.
-
-## Supported environments
-
-| Environment                                                  | Coverage                                      |
-| ------------------------------------------------------------ | --------------------------------------------- |
-| [CLI](skills/acceptance/surfaces/cli.md)                     | Command-line tools, APIs, and data processing |
-| [Web](skills/acceptance/surfaces/web.md)                     | Browser interfaces and user journeys          |
-| [Electron](skills/acceptance/surfaces/electron.md)           | Desktop application behavior                  |
-| [Native macOS](skills/acceptance/surfaces/native.md)         | Native apps and OS interactions               |
-| [iOS Simulator](skills/acceptance/surfaces/ios-simulator.md) | iOS apps, gestures, and device layouts        |
+In Claude Code, run `/reload-plugins` when prompted, or start a new session.
 
 ## Documentation
 
-- [Skill instructions](skills/acceptance/SKILL.md)
-- [Project setup](skills/acceptance/references/project-adapter.md)
-- [Evidence guide](skills/acceptance/references/evidence.md)
-- [Report format](skills/acceptance/references/report.md)
+| [Skill instructions](skills/acceptance/SKILL.md) | How an agent runs a verification round |
+| --- | --- |
+| [Project setup](skills/acceptance/references/project-adapter.md) | Commands, ports, auth, and surfaces for a repository |
+| [Evidence guide](skills/acceptance/references/evidence.md) | What to capture for a check |
+| [Report format](skills/acceptance/references/report.md) | How a published round is structured |
 
-## Development checks
+## Questions
 
-Run the helper regression tests on macOS or Linux with Node.js 22.15 or later,
-Bash, and Python 3. No npm dependencies, running browser, display permission,
-LobeHub checkout, or account are needed:
+**What is Acceptance?**
+Acceptance is an open-source agent skill by LobeHub for acceptance testing AI-built work. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work or send individual checks back.
+
+**What kinds of problems does it catch?**
+The ones people usually find by clicking around: popovers clipped by a container, labels that disappear in dark mode, layouts that break at narrow widths or with long translations, broken keyboard and focus behavior, and animations that jump. Each finding comes with the capture that shows it.
+
+**Does this replace tests or code review?**
+Keep your tests and code reviews. Acceptance checks the delivered behavior against the outcomes you named, and puts the observations and evidence where a person can review them.
+
+**Which coding agents does it work with?**
+Any coding agent that can load skills and drive the surface you want to check, such as Claude Code, Codex, or Cursor. Web checks run in a browser, CLI checks in the terminal, and native checks on the desktop or in the iOS Simulator.
+
+**Can I use it in a project I already have?**
+Yes. Acceptance is an agent skill you add to that project. Use a coding agent that can read skills and can drive the surface you want to check. The LobeHub CLI publishes the report and the evidence.
+
+**Can I review work from an agent running in a cloud sandbox?**
+Yes. The agent publishes its evidence to a report link instead of your local screen, so a run in the background, a cloud sandbox, or a headless machine can be reviewed later from any browser, including your phone.
+
+**What happens when I send a check back?**
+That check opens a new round with your note and any region you marked on the screenshot. The agent fixes it and brings new evidence for that check only. Checks you already accepted stay closed.
+
+**Does the agent learn from past reviews?**
+Yes. What you send back is recorded in the project as criteria and examples of past misses. Before the agent marks a check as passed on a later delivery, it reads those lessons, so the same mistake is less likely to reach you twice.
+
+**Can several people review the same delivery?**
+Yes. Everyone with the link opens the same report. Teammates can mark regions on screenshots, discuss a check in its thread, and accept or send back the checks they own, with each decision attributed to the person who made it.
+
+**Who decides whether the work is accepted?**
+You do. The agent runs the checks and records what it observed. You review the evidence and decide whether the delivery meets your requirements.
+
+**What if a screenshot or log is missing?**
+That check stays open until the screenshot, recording, or log is attached.
+
+## Development
+
+Run the helper regression tests on macOS or Linux with Node.js 22.15 or later, Bash, and Python 3. No npm dependencies, running browser, display permission, LobeHub checkout, or account are needed:
 
 ```bash
 node --test tests/*.test.mjs
 ```
 
-The tests use a local mock CDP server and simulated macOS tools. They exercise
-installed copies from an unrelated working directory, with spaces in paths and
-without executable bits, including concurrent captures and preflight failures.
+The tests use a local mock CDP server and simulated macOS tools. They exercise installed copies from an unrelated working directory, with spaces in paths and without executable bits, including concurrent captures and preflight failures.
 
-With Claude Code installed, validate both plugin manifests from the repository
-root:
+With Claude Code installed, validate both plugin manifests from the repository root:
 
 ```bash
 claude plugin validate .claude-plugin/plugin.json --strict
@@ -157,16 +248,25 @@ To try the plugin locally before publishing:
 claude --plugin-dir .
 ```
 
-Then invoke `/acceptance:acceptance`. Claude Code discovers the existing
-`skills/` directory automatically; no separate copy of the skill is needed.
-See the [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins)
-for the plugin layout and local development workflow.
+Then invoke `/acceptance:acceptance`. Claude Code discovers the existing `skills/` directory automatically; no separate copy of the skill is needed. See the [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins) for the plugin layout and local development workflow.
 
-When releasing skill updates, keep the version in `.claude-plugin/plugin.json`
-in sync with `metadata.version` in `skills/acceptance/SKILL.md`. Bump the plugin
-version for every plugin release so installed users receive updates; the
-marketplace entry uses the version from `plugin.json`.
+When releasing skill updates, keep the version in `.claude-plugin/plugin.json` in sync with `metadata.version` in `skills/acceptance/SKILL.md`. Bump the plugin version for every plugin release so installed users receive updates; the marketplace entry uses the version from `plugin.json`.
 
-## License
+---
 
-[Apache License 2.0](LICENSE).
+<details>
+<summary><h4 id="license">📝 License</h4></summary>
+
+[![][license-shield]][license]
+
+</details>
+
+Copyright © 2026 [LobeHub][profile]. <br />
+This project is [Apache License 2.0](./LICENSE) licensed.
+
+[issues]: https://github.com/lobehub/acceptance/issues
+[license]: ./LICENSE
+[license-shield]: https://img.shields.io/badge/license-Apache%202.0-white?labelColor=black&style=flat-square
+[product]: https://lobehub.com/acceptance
+[profile]: https://github.com/lobehub
+[skill]: https://app.lobehub.com/acceptance/skill.md
