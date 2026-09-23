@@ -190,41 +190,6 @@ In Claude Code, run `/reload-plugins` when prompted, or start a new session.
 | [Evidence guide](skills/acceptance/references/evidence.md) | What to capture for a check |
 | [Report format](skills/acceptance/references/report.md) | How a published round is structured |
 
-## Questions
-
-**What is Acceptance?**
-Acceptance is an open-source agent skill by LobeHub for acceptance testing AI-built work. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work or send individual checks back.
-
-**What kinds of problems does it catch?**
-The ones people usually find by clicking around: popovers clipped by a container, labels that disappear in dark mode, layouts that break at narrow widths or with long translations, broken keyboard and focus behavior, and animations that jump. Each finding comes with the capture that shows it.
-
-**Does this replace tests or code review?**
-Keep your tests and code reviews. Acceptance checks the delivered behavior against the outcomes you named, and puts the observations and evidence where a person can review them.
-
-**Which coding agents does it work with?**
-Any coding agent that can load skills and drive the surface you want to check, such as Claude Code, Codex, or Cursor. Web checks run in a browser, CLI checks in the terminal, and native checks on the desktop or in the iOS Simulator.
-
-**Can I use it in a project I already have?**
-Yes. Acceptance is an agent skill you add to that project. Use a coding agent that can read skills and can drive the surface you want to check. The LobeHub CLI publishes the report and the evidence.
-
-**Can I review work from an agent running in a cloud sandbox?**
-Yes. The agent publishes its evidence to a report link instead of your local screen, so a run in the background, a cloud sandbox, or a headless machine can be reviewed later from any browser, including your phone.
-
-**What happens when I send a check back?**
-That check opens a new round with your note and any region you marked on the screenshot. The agent fixes it and brings new evidence for that check only. Checks you already accepted stay closed.
-
-**Does the agent learn from past reviews?**
-Yes. What you send back is recorded in the project as criteria and examples of past misses. Before the agent marks a check as passed on a later delivery, it reads those lessons, so the same mistake is less likely to reach you twice.
-
-**Can several people review the same delivery?**
-Yes. Everyone with the link opens the same report. Teammates can mark regions on screenshots, discuss a check in its thread, and accept or send back the checks they own, with each decision attributed to the person who made it.
-
-**Who decides whether the work is accepted?**
-You do. The agent runs the checks and records what it observed. You review the evidence and decide whether the delivery meets your requirements.
-
-**What if a screenshot or log is missing?**
-That check stays open until the screenshot, recording, or log is attached.
-
 ## Development
 
 Run the helper regression tests on macOS or Linux with Node.js 22.15 or later, Bash, and Python 3. No npm dependencies, running browser, display permission, LobeHub checkout, or account are needed:
