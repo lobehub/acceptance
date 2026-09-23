@@ -13,7 +13,7 @@ Acceptance shows you the screenshots and recordings, on one link your team can r
 
 </div>
 
-Acceptance is open-source acceptance testing for AI coding agents, from LobeHub. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work, or send individual checks back.
+Acceptance is open-source acceptance testing for Agents. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work, or send individual checks back.
 
 > “Done” is the agent’s word. “Accepted” is yours.
 
