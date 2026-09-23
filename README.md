@@ -15,9 +15,9 @@ Acceptance shows you the screenshots and recordings, on one link your team can r
 
 Acceptance is open-source acceptance testing for Agents. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work, or send individual checks back.
 
-> “Done” is the agent’s word. “Accepted” is yours.
-
-You rarely know exactly what you want until you see it. Acceptance gives that moment a place: a report you can open from anywhere, review with your team, and that gets sharper every time you send something back.
+```
+Test -> Review-> Verify -> Simplify -> ♻️ = Acceptance
+```
 
 ## Contents
 
@@ -31,6 +31,10 @@ You rarely know exactly what you want until you see it. Acceptance gives that mo
 - [Questions](#questions)
 - [Development](#development)
 - [License](#license)
+
+##  “Done” is the agent’s word. “Accepted” is yours.
+
+You rarely know exactly what you want until you see it. Acceptance gives that moment a place: a report you can open from anywhere, review with your team, and that gets sharper every time you send something back.
 
 ## Why Acceptance
 
