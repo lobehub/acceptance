@@ -11,7 +11,6 @@ Acceptance shows you the screenshots and recordings, on one link your team can r
 
 [Product][product] · [Skill][skill] · [Surfaces](#where-it-runs) · [Feedback][issues]
 
-</div>
 
 Acceptance is open-source acceptance testing for Agents. Your coding agent turns a request into observable checks, runs the real product, and publishes a report with screenshots, recordings, and logs attached to each check. You accept the work, or send individual checks back.
 
@@ -19,7 +18,12 @@ Acceptance is open-source acceptance testing for Agents. Your coding agent turns
 Test -> Review-> Verify -> Simplify -> ♻️ = Acceptance
 ```
 
-## Contents
+</div>
+
+<details>
+<summary><kbd>Table of contents</kbd></summary>
+
+#### TOC
 
 - [Why Acceptance](#why-acceptance)
 - [What it catches](#what-it-catches)
@@ -31,6 +35,10 @@ Test -> Review-> Verify -> Simplify -> ♻️ = Acceptance
 - [Questions](#questions)
 - [Development](#development)
 - [License](#license)
+
+</details>
+
+<br/>
 
 ##  “Done” is the agent’s word. “Accepted” is yours.
 
@@ -44,6 +52,12 @@ You rarely know exactly what you want until you see it. Acceptance gives that mo
 
 ![](https://github.com/user-attachments/assets/1d5fc50a-a0da-4d18-bb9a-aa3e8f535d76)
 
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
+
 ## What it catches
 
 Tests prove the code runs. They don't notice a clipped menu, a label that vanishes in dark mode, or a German button spilling off a 320px screen. Acceptance checks what a person would check, and shows you what it saw.
@@ -56,6 +70,12 @@ Tests prove the code runs. They don't notice a clipped menu, a label that vanish
 - **Send back one check, keep the rest.** Each check keeps its own rounds. Fix what failed, and what you already accepted stays accepted.
 
 ![](https://github.com/user-attachments/assets/68e34858-571e-4a5d-b8c8-0871e912ab47)
+
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
 
 ## How it works
 
@@ -74,6 +94,12 @@ It opens the app, clicks through, resizes, switches themes, and captures every s
 Read what the agent observed next to the proof. Accept it, or send back that one check. Your note becomes a lesson for the next run.
 
 ![](https://github.com/user-attachments/assets/0773d927-5638-4d8f-8656-fe0f5ffb1e88)
+
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
 
 ## Works with your agent
 
@@ -109,6 +135,12 @@ The same report, on the surface your product uses. A web flow, a command, a desk
 | [iOS Simulator](skills/acceptance/surfaces/ios-simulator.md) | Gestures and device layouts |
 
 ![](https://github.com/user-attachments/assets/fea4dc89-4d0d-4be0-8c6b-c8f358513dfc)
+
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
 
 ## Installation
 
@@ -186,6 +218,12 @@ To update a plugin installed this way, run these commands in Claude Code:
 
 In Claude Code, run `/reload-plugins` when prompted, or start a new session.
 
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
+
 ## Documentation
 
 | [Skill instructions](skills/acceptance/SKILL.md) | How an agent runs a verification round |
@@ -193,6 +231,12 @@ In Claude Code, run `/reload-plugins` when prompted, or start a new session.
 | [Project setup](skills/acceptance/references/project-adapter.md) | Commands, ports, auth, and surfaces for a repository |
 | [Evidence guide](skills/acceptance/references/evidence.md) | What to capture for a check |
 | [Report format](skills/acceptance/references/report.md) | How a published round is structured |
+
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
 
 ## Development
 
@@ -221,6 +265,12 @@ Then invoke `/acceptance:acceptance`. Claude Code discovers the existing `skills
 
 When releasing skill updates, keep the version in `.claude-plugin/plugin.json` in sync with `metadata.version` in `skills/acceptance/SKILL.md`. Bump the plugin version for every plugin release so installed users receive updates; the marketplace entry uses the version from `plugin.json`.
 
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
+
 ---
 
 <details>
@@ -239,3 +289,4 @@ This project is [Apache License 2.0](./LICENSE) licensed.
 [product]: https://lobehub.com/acceptance
 [profile]: https://github.com/lobehub
 [skill]: https://app.lobehub.com/acceptance/skill.md
+[back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
