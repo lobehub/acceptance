@@ -389,8 +389,9 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   association does not free file storage. Never delete user data automatically.
 - For an older CLI without recovery URLs, resolve its configured server using
   `lh doctor --offline --json`, then use `/acceptance` and `/settings/plans` on
-  that server. For LobeHub Cloud these are https://app.lobehub.com/acceptance and
-  https://app.lobehub.com/settings/plans . Do not send self-hosted users to Cloud
+  that server. For LobeHub Cloud, including its `app.lobehub.com` API endpoint,
+  the user-facing links are https://lobehub.com/acceptance and
+  https://lobehub.com/settings/plans . Do not send self-hosted users to Cloud
   as a remedy for their server's storage limit.
 - Preserve local reports, artifacts, and the returned retry instructions. Stop
   blind retries until the user has addressed storage. For a partially ingested
