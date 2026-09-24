@@ -30,9 +30,9 @@ Test -> Review-> Verify -> Simplify -> ♻️ = Acceptance
 - [How it works](#how-it-works)
 - [Works with your agent](#works-with-your-agent)
 - [Where it runs](#where-it-runs)
+- [Sharing and storage](#sharing-and-storage)
 - [Installation](#installation)
 - [Documentation](#documentation)
-- [Questions](#questions)
 - [Development](#development)
 - [License](#license)
 
@@ -135,6 +135,20 @@ The same report, on the surface your product uses. A web flow, a command, a desk
 | [iOS Simulator](skills/acceptance/surfaces/ios-simulator.md) | Gestures and device layouts |
 
 ![](https://github.com/user-attachments/assets/fea4dc89-4d0d-4be0-8c6b-c8f358513dfc)
+
+<div align="right">
+
+[![][back-to-top]](#readme-top)
+
+</div>
+
+## Sharing and storage
+
+Reports and their evidence are published to LobeHub. Each report has its own link.
+
+- **Reviewers only need the link.** They open the report in a browser, with nothing to install, and can comment on checks and screenshots once signed in to LobeHub. Your agent can read everyone's comments with `lh acceptance feedback` and work from them in the next round.
+- **Look before you share.** Anyone with the link can open a report from your personal account, while reports published to a workspace are members-only. A setting to limit who can open each report is on the way. The [evidence rules](skills/acceptance/references/evidence.md#artifact-safety) tell your agent to leave out credentials and unrelated windows, but only you know what else is sensitive. Send the link to the people who need it.
+- **Evidence uses your LobeHub storage.** Screenshots, recordings, and other evidence files count toward your account's file storage, or your workspace's when you publish there. Every account includes free storage. When you need more, [upgrade your plan][pricing] or delete reports you no longer need along with their evidence.
 
 <div align="right">
 
@@ -286,6 +300,7 @@ This project is [Apache License 2.0](./LICENSE) licensed.
 [issues]: https://github.com/lobehub/acceptance/issues
 [license]: ./LICENSE
 [license-shield]: https://img.shields.io/badge/license-Apache%202.0-white?labelColor=black&style=flat-square
+[pricing]: https://lobehub.com/pricing
 [product]: https://lobehub.com/acceptance
 [profile]: https://github.com/lobehub
 [skill]: https://app.lobehub.com/acceptance/skill.md
