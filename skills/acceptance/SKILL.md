@@ -381,18 +381,31 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   locally observed results from uploaded evidence, and report the actual coverage.
   Include the saved acceptance/round links when available; do not invent them for
   an atomic submission that failed before saving a result.
-- Give **both clickable options**, in the user's language, using the CLI's
-  `recovery.cleanupUrl` and `recovery.upgradeUrl` verbatim:
-  **clean up unneeded acceptances** or **upgrade the plan**. Explain that cleanup
-  requires selecting "permanently delete all rounds, reports, and evidence files"
-  and cannot be undone. Deleting only the acceptance record or an evidence
-  association does not free file storage. Never delete user data automatically.
-- For an older CLI without recovery URLs, resolve its configured server using
-  `lh doctor --offline --json`, then use `/acceptance` and `/settings/plans` on
-  that server. For LobeHub Cloud, including its `app.lobehub.com` API endpoint,
-  the user-facing links are https://lobehub.com/acceptance and
-  https://lobehub.com/settings/plans . Do not send self-hosted users to Cloud
-  as a remedy for their server's storage limit.
+- Give **both recovery options**, in the user's language, using available
+  `recovery.cleanupUrl` and `recovery.upgradeUrl` verbatim and following
+  `recovery.message`. Never delete user data automatically. Deletion is permanent.
+  - Personal scope: **clean up unneeded acceptances** or **upgrade the personal
+    plan**. Acceptance cleanup requires selecting "permanently delete all rounds,
+    reports, and evidence files"; deleting only a record or evidence association
+    does not free storage.
+  - Workspace scope (`recovery.scope: "workspace"`): **clean up that workspace's
+    files** or **upgrade that workspace's plan**. The cleanup link opens its
+    resource library, not an acceptance list; do not invent an acceptance-purge
+    checkbox there. Ask its owner/admin for cleanup or billing access. Personal
+    cleanup or a personal upgrade does not resolve a workspace limit.
+  - If the CLI reports unresolved workspace scope and omits recovery URLs, report
+    that limitation and its scope-check instructions. Do not invent links or
+    substitute personal pages.
+- For an older CLI without recovery metadata, resolve server and scope using
+  `lh doctor --offline --json` and `lh workspace current --json`. Personal scope
+  uses `/acceptance` and `/settings/plans`. For workspace scope, resolve its slug
+  with `lh workspace view --json`, verify the returned ID matches the active
+  workspace, and use `/:workspaceSlug/resource` and
+  `/:workspaceSlug/settings/plans`; there is no `/:workspaceSlug/acceptance`
+  route. If lookup fails, give scope-specific guidance without guessed links.
+  Strip URL username/password when constructing display links. For LobeHub Cloud,
+  including its `app.lobehub.com` API endpoint, use `https://lobehub.com`; keep
+  self-hosted users on their configured server.
 - Preserve local reports, artifacts, and the returned retry instructions. Stop
   blind retries until the user has addressed storage. For a partially ingested
   report, retry only failed artifacts using `failedEvidence[].retryArgs` or
