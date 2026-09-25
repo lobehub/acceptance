@@ -383,7 +383,12 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   an atomic submission that failed before saving a result.
 - Give **both recovery options**, in the user's language, using available
   `recovery.cleanupUrl` and `recovery.upgradeUrl` verbatim and following
-  `recovery.message`. Never delete user data automatically. Deletion is permanent.
+  `recovery.message`, with one compatibility exception: if a personal cleanup
+  link points to `https://lobehub.com/acceptance` (with or without a trailing
+  slash), change its origin to `https://app.lobehub.com`, preserving its path,
+  query, and fragment. The apex `/acceptance` route is the product introduction,
+  not the acceptance manager. Never delete user data automatically. Deletion is
+  permanent.
   - Personal scope: **clean up unneeded acceptances** or **upgrade the personal
     plan**. Acceptance cleanup requires selecting "permanently delete all rounds,
     reports, and evidence files"; deleting only a record or evidence association
@@ -403,9 +408,11 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   workspace, and use `/:workspaceSlug/resource` and
   `/:workspaceSlug/settings/plans`; there is no `/:workspaceSlug/acceptance`
   route. If lookup fails, give scope-specific guidance without guessed links.
-  Strip URL username/password when constructing display links. For LobeHub Cloud,
-  including its `app.lobehub.com` API endpoint, use `https://lobehub.com`; keep
-  self-hosted users on their configured server.
+  Strip URL username/password when constructing display links. For LobeHub Cloud
+  (CLI server `https://app.lobehub.com` or `https://lobehub.com`), personal cleanup
+  uses `https://app.lobehub.com/acceptance`; personal plan upgrades use
+  `https://lobehub.com/settings/plans`. Workspace resource and plan paths use
+  `https://lobehub.com`. Keep self-hosted users on their configured server.
 - Preserve local reports, artifacts, and the returned retry instructions. Stop
   blind retries until the user has addressed storage. For a partially ingested
   report, retry only failed artifacts using `failedEvidence[].retryArgs` or
