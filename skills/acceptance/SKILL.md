@@ -367,6 +367,13 @@ process. Keep required evidence complete; shorten its presentation, not the work
 
 ## Final handoff (mandatory)
 
+**Cloud browser links use the apex domain.** For all acceptance, round, cleanup,
+and upgrade URLs in this skill (including instructions below that say "verbatim"),
+replace only the legacy `https://app.lobehub.com` origin with
+`https://lobehub.com`, preserving the path, query, and fragment. Keep self-hosted
+and development origins unchanged. This changes display links, not the CLI's
+configured API server.
+
 Before declaring the task done, prove coverage: for each check with
 `requiredEvidence`, every declared `type` is present at least once. Report it
 explicitly; a missing type holds the delivery at `uncertain` no matter how good
@@ -383,11 +390,11 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   an atomic submission that failed before saving a result.
 - Give **both recovery options**, in the user's language, using available
   `recovery.cleanupUrl` and `recovery.upgradeUrl` verbatim and following
-  `recovery.message`, with one compatibility exception: if a personal cleanup
-  link points to `https://lobehub.com/acceptance` (with or without a trailing
-  slash), change its origin to `https://app.lobehub.com`, preserving its path,
-  query, and fragment. The apex `/acceptance` route is the product introduction,
-  not the acceptance manager. Never delete user data automatically. Deletion is
+  `recovery.message`, with one compatibility exception: for LobeHub Cloud,
+  normalize legacy `https://app.lobehub.com` browser links to
+  `https://lobehub.com`, preserving the path, query, and fragment. The apex
+  `/acceptance` route shows the introduction to visitors and the acceptance
+  manager after sign-in. Never delete user data automatically. Deletion is
   permanent.
   - Personal scope: **clean up unneeded acceptances** or **upgrade the personal
     plan**. Acceptance cleanup requires selecting "permanently delete all rounds,
@@ -410,7 +417,7 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   route. If lookup fails, give scope-specific guidance without guessed links.
   Strip URL username/password when constructing display links. For LobeHub Cloud
   (CLI server `https://app.lobehub.com` or `https://lobehub.com`), personal cleanup
-  uses `https://app.lobehub.com/acceptance`; personal plan upgrades use
+  uses `https://lobehub.com/acceptance`; personal plan upgrades use
   `https://lobehub.com/settings/plans`. Workspace resource and plan paths use
   `https://lobehub.com`. Keep self-hosted users on their configured server.
 - Preserve local reports, artifacts, and the returned retry instructions. Stop
