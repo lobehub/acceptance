@@ -97,7 +97,6 @@ for (const server of [
       verifyRunId: runId,
       roundIndex: 3,
       acceptanceUrl: url,
-      roundUrl: `${url}?r=3`,
     });
   });
 }
