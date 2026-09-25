@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -366,6 +366,11 @@ For a failure, name the unmet outcome directly, without recounting the debugging
 process. Keep required evidence complete; shorten its presentation, not the work.
 
 ## Final handoff (mandatory)
+
+Close every browser session this run opened
+(`agent-browser --session <name> close`, [web teardown](surfaces/web.md#web-teardown))
+before handing off; a session left open keeps a full browser running
+indefinitely.
 
 Before declaring the task done, prove coverage: for each check with
 `requiredEvidence`, every declared `type` is present at least once. Report it
