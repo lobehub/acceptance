@@ -367,6 +367,11 @@ process. Keep required evidence complete; shorten its presentation, not the work
 
 ## Final handoff (mandatory)
 
+Close every browser session this run opened
+(`agent-browser --session <name> close`, [web teardown](surfaces/web.md#web-teardown))
+before handing off; a session left open keeps a full browser running
+indefinitely.
+
 Before declaring the task done, prove coverage: for each check with
 `requiredEvidence`, every declared `type` is present at least once. Report it
 explicitly; a missing type holds the delivery at `uncertain` no matter how good
