@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.5.1"
+  version: "0.5.2"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -431,13 +431,12 @@ URL together with the coverage result — never only a check-result id or a pros
 claim. Obtain the links from the path you actually executed:
 
 - **Authored round:** copy `acceptanceUrl` returned by
-  `lh acceptance run ingest --json` verbatim. Add its `roundUrl` verbatim when
-  non-null; otherwise the acceptance URL alone is the handoff.
+  `lh acceptance run ingest --json` verbatim.
 - **Operation-plan round:** follow the read-only
   [plan handoff lookup](references/plan-format.md#resolve-the-plan-rounds-handoff-links).
   It resolves the supplied operation ID to its existing run, acceptance, and
   round using the CLI's actual server configuration. Copy its
-  `acceptanceUrl` and `roundUrl` output. Do not run authored ingest, create another
+  `acceptanceUrl` output. Do not run authored ingest, create another
   acceptance, or resubmit evidence merely to obtain a link.
 
 Never guess a host, acceptance ID, or round index. The documented plan lookup is
@@ -450,11 +449,11 @@ chat reply.
 
 Write the link as a plain-text line, never inside a fenced or inline code block — the
 chat client only linkifies plain text, and a code block makes it unclickable.
-Replace each placeholder below with the URL from the selected path; omit the
-`Round` line when `roundUrl` is null:
+Hand off only the acceptance URL: the acceptance page opens on its latest round,
+so a separate per-round link adds nothing for the reader. Replace the placeholder
+below with the URL from the selected path:
 
 Acceptance: <acceptanceUrl, verbatim>
-Round: <roundUrl, verbatim>
 Coverage: 2/2 criteria, all required evidence uploaded
 
 ## Portability rules
