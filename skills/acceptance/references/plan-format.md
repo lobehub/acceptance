@@ -128,7 +128,8 @@ const endpoint = JSON.parse(doctor.stdout).checks?.find((check) => check.id === 
 if (!['ok', 'warn'].includes(endpoint?.status) || !endpoint.evidence?.serverUrl) {
   throw new Error('Handoff blocked: the CLI did not resolve its server URL.');
 }
-const origin = new URL(endpoint.evidence.serverUrl).origin;
+const serverOrigin = new URL(endpoint.evidence.serverUrl).origin;
+const origin = serverOrigin === 'https://app.lobehub.com' ? 'https://lobehub.com' : serverOrigin;
 const query = (...args) => JSON.parse(execFileSync('lh', [...args, '--json'], { encoding: 'utf8' }));
 const state = query('verify', 'plan', 'state', operationId);
 const runId = state?.verifyRunId;

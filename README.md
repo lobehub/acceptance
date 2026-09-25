@@ -171,7 +171,7 @@ Then ask your agent: “Use Acceptance to verify this feature against my require
 Paste this into your coding agent, inside the project you want to verify. It will install the CLI and skill, then guide you through signing in.
 
 ```text
-Read https://app.lobehub.com/acceptance/skill.md and follow the instructions to install Acceptance.
+Read https://lobehub.com/acceptance/skill.md and follow the instructions to install Acceptance.
 ```
 
 ### `B` LobeHub CLI
@@ -303,5 +303,5 @@ This project is [Apache License 2.0](./LICENSE) licensed.
 [pricing]: https://lobehub.com/pricing
 [product]: https://lobehub.com/acceptance
 [profile]: https://github.com/lobehub
-[skill]: https://app.lobehub.com/acceptance/skill.md
+[skill]: https://lobehub.com/acceptance/skill.md
 [back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
