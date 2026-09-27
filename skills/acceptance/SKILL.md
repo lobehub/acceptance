@@ -322,7 +322,7 @@ passing tests support that evidence; they do not replace it.
 | New/changed API **plus** the UI consuming it                | **Web**, full-stack (agent-browser + network capture) | [surfaces/web.md](surfaces/web.md#web-full-stack)      |
 | Desktop-only behavior (native windows, IPC, packaged shell) | **Electron** (agent-browser `--cdp`)                  | [surfaces/electron.md](surfaces/electron.md)           |
 | Native macOS app / OS chrome agent-browser can't reach      | **Native** (osascript + screencapture, local macOS)   | [surfaces/native.md](surfaces/native.md)               |
-| Native iOS behavior, gestures, device-size layout           | **iOS Simulator** (AXe/native CLI + `simctl`)         | [surfaces/ios-simulator.md](surfaces/ios-simulator.md) |
+| Native iOS behavior, gestures, device-size layout           | **iOS Simulator** (sim-use/AXe + `simctl`)            | [surfaces/ios-simulator.md](surfaces/ios-simulator.md) |
 
 - **Use CLI alone only when the required outcome has no UI surface.** If a visible
   outcome cannot be exercised, report that acceptance as incomplete instead of
@@ -481,6 +481,7 @@ For both acceptance-checker handoffs and review output, read
 | Evidence media, provenance, submission, safety | [evidence.md](references/evidence.md)                                                                                                                                                   |
 | Interaction cost overlay                       | [interaction-cost.md](references/interaction-cost.md)                                                                                                                                   |
 | Web/Electron Chromium CLI commands             | [agent-browser.md](references/agent-browser.md)                                                                                                                                         |
+| iOS Simulator driver CLI commands              | [sim-use.md](references/sim-use.md) (preferred), [axe.md](references/axe.md) (fallback) |
 | Bundled CDP screenshot and macOS capture preflight | [screenshot-helpers.md](references/screenshot-helpers.md) |
 | Authenticated Web session                      | [auth-web.md](references/auth-web.md)                                                                                                                                                   |
 | Native macOS / OS-owned step                   | [computer-use.md](references/computer-use.md)                                                                                                                                           |
