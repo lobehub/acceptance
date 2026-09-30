@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.5.0"
+  version: "0.5.2"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -322,7 +322,7 @@ passing tests support that evidence; they do not replace it.
 | New/changed API **plus** the UI consuming it                | **Web**, full-stack (agent-browser + network capture) | [surfaces/web.md](surfaces/web.md#web-full-stack)      |
 | Desktop-only behavior (native windows, IPC, packaged shell) | **Electron** (agent-browser `--cdp`)                  | [surfaces/electron.md](surfaces/electron.md)           |
 | Native macOS app / OS chrome agent-browser can't reach      | **Native** (osascript + screencapture, local macOS)   | [surfaces/native.md](surfaces/native.md)               |
-| Native iOS behavior, gestures, device-size layout           | **iOS Simulator** (AXe/native CLI + `simctl`)         | [surfaces/ios-simulator.md](surfaces/ios-simulator.md) |
+| Native iOS behavior, gestures, device-size layout           | **iOS Simulator** (sim-use/AXe + `simctl`)            | [surfaces/ios-simulator.md](surfaces/ios-simulator.md) |
 
 - **Use CLI alone only when the required outcome has no UI surface.** If a visible
   outcome cannot be exercised, report that acceptance as incomplete instead of
@@ -367,12 +367,17 @@ process. Keep required evidence complete; shorten its presentation, not the work
 
 ## Final handoff (mandatory)
 
-**Cloud browser links use the apex domain.** For all acceptance, round, cleanup,
-and upgrade URLs in this skill (including instructions below that say "verbatim"),
-replace only the legacy `https://app.lobehub.com` origin with
-`https://lobehub.com`, preserving the path, query, and fragment. Keep self-hosted
-and development origins unchanged. This changes display links, not the CLI's
-configured API server.
+**Cloud browser links use `https://lobehub.com`.** For all acceptance, round,
+cleanup, and upgrade URLs in this skill (including instructions below that say
+"verbatim"), normalize LobeHub Cloud origins to `https://lobehub.com`, preserving
+the path, query, and fragment. Cloud hosts are `lobehub.com` and its subdomains.
+Keep self-hosted and development origins unchanged. This changes display links,
+not the CLI's configured API server.
+
+Close every browser session this run opened
+(`agent-browser --session <name> close`, [web teardown](surfaces/web.md#web-teardown))
+before handing off; a session left open keeps a full browser running
+indefinitely.
 
 Before declaring the task done, prove coverage: for each check with
 `requiredEvidence`, every declared `type` is present at least once. Report it
@@ -390,12 +395,8 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   an atomic submission that failed before saving a result.
 - Give **both recovery options**, in the user's language, using available
   `recovery.cleanupUrl` and `recovery.upgradeUrl` verbatim and following
-  `recovery.message`, with one compatibility exception: for LobeHub Cloud,
-  normalize legacy `https://app.lobehub.com` browser links to
-  `https://lobehub.com`, preserving the path, query, and fragment. The apex
-  `/acceptance` route shows the introduction to visitors and the acceptance
-  manager after sign-in. Never delete user data automatically. Deletion is
-  permanent.
+  `recovery.message`, applying the Cloud browser-link rule above. Never delete
+  user data automatically. Deletion is permanent.
   - Personal scope: **clean up unneeded acceptances** or **upgrade the personal
     plan**. Acceptance cleanup requires selecting "permanently delete all rounds,
     reports, and evidence files"; deleting only a record or evidence association
@@ -415,9 +416,8 @@ or a `storage_block:` error. Do not stop at "upload failed" or "noted in the PR"
   workspace, and use `/:workspaceSlug/resource` and
   `/:workspaceSlug/settings/plans`; there is no `/:workspaceSlug/acceptance`
   route. If lookup fails, give scope-specific guidance without guessed links.
-  Strip URL username/password when constructing display links. For LobeHub Cloud
-  (CLI server `https://app.lobehub.com` or `https://lobehub.com`), personal cleanup
-  uses `https://lobehub.com/acceptance`; personal plan upgrades use
+  Strip URL username/password when constructing display links. For LobeHub Cloud,
+  personal cleanup uses `https://lobehub.com/acceptance`; personal plan upgrades use
   `https://lobehub.com/settings/plans`. Workspace resource and plan paths use
   `https://lobehub.com`. Keep self-hosted users on their configured server.
 - Preserve local reports, artifacts, and the returned retry instructions. Stop
@@ -433,13 +433,12 @@ URL together with the coverage result — never only a check-result id or a pros
 claim. Obtain the links from the path you actually executed:
 
 - **Authored round:** copy `acceptanceUrl` returned by
-  `lh acceptance run ingest --json` verbatim. Add its `roundUrl` verbatim when
-  non-null; otherwise the acceptance URL alone is the handoff.
+  `lh acceptance run ingest --json` verbatim.
 - **Operation-plan round:** follow the read-only
   [plan handoff lookup](references/plan-format.md#resolve-the-plan-rounds-handoff-links).
   It resolves the supplied operation ID to its existing run, acceptance, and
   round using the CLI's actual server configuration. Copy its
-  `acceptanceUrl` and `roundUrl` output. Do not run authored ingest, create another
+  `acceptanceUrl` output. Do not run authored ingest, create another
   acceptance, or resubmit evidence merely to obtain a link.
 
 Never guess a host, acceptance ID, or round index. The documented plan lookup is
@@ -452,11 +451,11 @@ chat reply.
 
 Write the link as a plain-text line, never inside a fenced or inline code block — the
 chat client only linkifies plain text, and a code block makes it unclickable.
-Replace each placeholder below with the URL from the selected path; omit the
-`Round` line when `roundUrl` is null:
+Hand off only the acceptance URL: the acceptance page opens on its latest round,
+so a separate per-round link adds nothing for the reader. Replace the placeholder
+below with the URL from the selected path:
 
 Acceptance: <acceptanceUrl, verbatim>
-Round: <roundUrl, verbatim>
 Coverage: 2/2 criteria, all required evidence uploaded
 
 ## Portability rules
@@ -484,6 +483,7 @@ For both acceptance-checker handoffs and review output, read
 | Evidence media, provenance, submission, safety | [evidence.md](references/evidence.md)                                                                                                                                                   |
 | Interaction cost overlay                       | [interaction-cost.md](references/interaction-cost.md)                                                                                                                                   |
 | Web/Electron Chromium CLI commands             | [agent-browser.md](references/agent-browser.md)                                                                                                                                         |
+| iOS Simulator driver CLI commands              | [sim-use.md](references/sim-use.md) (preferred), [axe.md](references/axe.md) (fallback) |
 | Bundled CDP screenshot and macOS capture preflight | [screenshot-helpers.md](references/screenshot-helpers.md) |
 | Authenticated Web session                      | [auth-web.md](references/auth-web.md)                                                                                                                                                   |
 | Native macOS / OS-owned step                   | [computer-use.md](references/computer-use.md)                                                                                                                                           |

@@ -36,7 +36,7 @@ function handoff(t, options = {}) {
       verifyRunId: runId,
       verifyPlan: [{ verifierConfig: { requiredEvidence: [] } }],
     },
-    server: "https://app.lobehub.com",
+    server: "https://lobehub.com",
     doctorExit: 0,
     endpointStatus: "ok",
     lookupExit: 0,
@@ -84,20 +84,22 @@ if (command === 0) {
   return result;
 }
 
-for (const server of [
-  "https://app.lobehub.com",
-  "http://localhost:3010/base/",
+for (const [server, browserOrigin] of [
+  ["https://lobehub.com", "https://lobehub.com"],
+  ["https://cloud.lobehub.com/api/", "https://lobehub.com"],
+  ["http://localhost:3010/base/", "http://localhost:3010"],
+  ["https://user:password@acceptance.example.test:8443/base/", "https://acceptance.example.test:8443"],
+  ["https://lobehub.com.example.test", "https://lobehub.com.example.test"],
 ]) {
   test(`text-only plan resolves links without a submission response: ${server}`, (t) => {
     const result = handoff(t, { server });
     assert.equal(result.status, 0, result.stderr);
-    const url = `${new URL(server).origin}/acceptance/${acceptanceId}`;
+    const url = `${browserOrigin}/acceptance/${acceptanceId}`;
     assert.deepEqual(JSON.parse(result.stdout), {
       acceptanceId,
       verifyRunId: runId,
       roundIndex: 3,
       acceptanceUrl: url,
-      roundUrl: `${url}?r=3`,
     });
   });
 }
