@@ -373,6 +373,8 @@ cleanup, and upgrade URLs in this skill (including instructions below that say
 the path, query, and fragment. Cloud hosts are `lobehub.com` and its subdomains.
 Keep self-hosted and development origins unchanged. This changes display links,
 not the CLI's configured API server.
+Keep the Skill installation resource at
+`https://app.lobehub.com/acceptance/skill.md`.
 
 Close every browser session this run opened
 (`agent-browser --session <name> close`, [web teardown](surfaces/web.md#web-teardown))
