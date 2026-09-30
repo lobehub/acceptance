@@ -194,6 +194,14 @@ lh acceptance update
 
 Updates replace installed skill files, including local edits, and remove stale resources. Use `--dir <path>` with either command to target another project.
 
+To install a tagged release, specify its skill version:
+
+```bash
+lh acceptance install --skill-version 0.5.3
+```
+
+To replace an existing installation with that release, use `lh acceptance update --skill-version 0.5.3`. Pass `--skill-version` each time you want a specific release; omitting it follows the default branch. This requires a CLI and server that support skill tag selection. The skill version is independent of the LobeHub CLI version.
+
 ### `C` Skills CLI
 
 Installs the skill only. Run this from the project you want to verify:
@@ -207,6 +215,14 @@ To update a skill installed this way:
 ```bash
 npx skills update acceptance
 ```
+
+The default install follows the repository's default branch. To install a tagged snapshot:
+
+```bash
+npx skills add 'lobehub/acceptance#v0.5.3' --skill acceptance
+```
+
+The `#` selects a Git ref; `@` in an `owner/repo@name` source selects a skill name. Skills CLI records the selected ref in its lock file, so updates keep using that ref. To move to another release, run `skills add` again with the new tag. For an immutable source reference, use a full commit SHA in place of the tag.
 
 > [!TIP]
 >
@@ -277,7 +293,21 @@ claude --plugin-dir .
 
 Then invoke `/acceptance:acceptance`. Claude Code discovers the existing `skills/` directory automatically; no separate copy of the skill is needed. See the [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins) for the plugin layout and local development workflow.
 
-When releasing skill updates, keep the version in `.claude-plugin/plugin.json` in sync with `metadata.version` in `skills/acceptance/SKILL.md`. Bump the plugin version for every plugin release so installed users receive updates; the marketplace entry uses the version from `plugin.json`.
+### Versioning and releases
+
+Keep the stable version in `.claude-plugin/plugin.json` in sync with `metadata.version` in `skills/acceptance/SKILL.md`. The marketplace entry uses the version from `plugin.json`; do not duplicate it in `marketplace.json`.
+
+Every change to `skills/acceptance/` or the plugin manifest that lands on `main` must increase both versions. This includes instructions, references, and helper scripts: Claude Code users with the same plugin version keep their cached copy. Changes only to the repository README, tests, or CI do not require a skill version bump.
+
+To publish a release:
+
+1. Update both version declarations in the same change and run `node --test tests/*.test.mjs`.
+2. Merge the tested change to `main`, then create and push a `vX.Y.Z` tag on that exact release commit, matching the declared version. Keep existing tags unchanged.
+3. If distributing through ClawHub, publish `skills/acceptance/` from that tagged checkout with the same version. ClawHub publication is a separate step from pushing a Git tag.
+
+CI checks version consistency, requires a version increase when distributed files change, verifies that an existing version tag still matches those files, and checks version names on tag pushes. The Git history checks use the full history and tags fetched by CI. When running locally, set `SKILL_VERSION_BASE` to a base commit to check the version increase too.
+
+Git tags provide the snapshots used for fixed-version installs. GitHub Release pages are optional release notes; these installation paths do not require an uploaded `acceptance-skill.json` asset. Default-branch installs continue to follow source updates.
 
 <div align="right">
 
