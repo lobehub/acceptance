@@ -31,27 +31,41 @@ bash "$GUARD" start \
   --group browser='Google Chrome for Testing|agent-browser' \
   --group devserver='next-server|vite' \
   --yellow 'swap=70,free=25' \
-  --red 'swap=85,free=10,group.browser.rss=1500' \
+  --red 'swap=85,free=10,total.rss=4000,group.browser.rss=1500' \
   --on-red stop-owned
 
-bash "$GUARD" check  --json   # one verdict now; exit 0 green, 10 yellow, 20 red
-bash "$GUARD" status --json   # samples, red/yellow counts, recorded events
-bash "$GUARD" stop            # at teardown, always
+bash "$GUARD" claim --state-dir "$RUN_DIR" --pid "$BROWSER_DAEMON_PID"  # what this run started
+
+bash "$GUARD" check  --json                        # one verdict now; exit 0 green, 10 yellow, 20 red
+bash "$GUARD" status --state-dir "$RUN_DIR" --json # samples, red/yellow counts, recorded events
+bash "$GUARD" stop   --state-dir "$RUN_DIR"        # at teardown, always
 ```
 
 Threshold spec: comma-separated `KEY=VALUE`, any subset of
 `swap=PCT`, `free=PCT`, `total.rss=MB`, `group.NAME.rss=MB`, `group.NAME.count=N`.
-`--group NAME=PATTERN` is repeatable; the pattern is an ERE matched against each
-process command line. Keep patterns specific to the processes this run starts.
+`total.rss` is the summed RSS of the declared groups, so it stays 0 without
+`--group`. `--group NAME=PATTERN` is repeatable; the pattern is an ERE matched
+against each process command line. Keep patterns specific to the processes this run
+starts.
 
 ## Ownership — what `stop-owned` may stop
 
-A process belongs to this run when it is **absent from the group's pre-start
-snapshot**, or its command line contains `--run-tag`. `stop-owned` signals only
-those, only in the declared groups, `TERM` first and then `KILL` after `--grace`.
+Ownership is proven, never inferred from timing. A process belongs to this run when
+its command line contains the run tag, or the run registered it with `claim`, or it
+descends from a claimed process. `stop-owned` signals only those, only in the
+declared groups, `TERM` first and then `KILL` after `--grace`.
 
-It never issues a process-name kill, and never touches a process that predates
-the guard — a sibling run's browser and a dev server the user started keep
+A process that merely appeared after the guard started is **not** owned. Two runs
+overlapping on one repository each start their own browser and dev server; if
+"started after my snapshot" counted as ownership, whichever run hit red first would
+stop the other run's services mid-capture. Register what you start:
+
+```bash
+bash "$GUARD" claim --state-dir "$RUN_DIR" --pid "$DEV_SERVER_PID"
+```
+
+It never issues a process-name kill, and never touches a process it cannot
+positively identify — a sibling run's browser and a dev server the user started keep
 running. Anything wider (`close --all`, `pkill`) kills other agents' work
 mid-capture.
 
