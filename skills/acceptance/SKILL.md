@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.6.0"
+  version: "0.6.1"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -380,7 +380,8 @@ Close every browser session this run opened
 (`agent-browser --session <name> close`, [web teardown](surfaces/web.md#web-teardown))
 before handing off; a session left open keeps a full browser running
 indefinitely. Stop this run's [resource guard](references/resource-guard.md)
-(`resource-guard.sh stop`) as well, and state in the round report whether it
+(`resource-guard.sh stop --state-dir <run state dir>`) as well, and state in the
+round report whether it
 reached yellow or red and what that stopped; a run that hit red must say which
 checks it left `blocked` instead of passing.
 

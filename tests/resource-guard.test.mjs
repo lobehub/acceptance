@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { execFile, spawn } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -87,6 +87,13 @@ const alive = (pid) => {
   }
 };
 
+const childrenOf = (pid) =>
+  execFileSync('ps', ['-Ao', 'pid=,ppid='], { encoding: 'utf8' })
+    .split('\n')
+    .map((line) => line.trim().split(/\s+/))
+    .filter(([, parent]) => Number(parent) === pid)
+    .map(([child]) => Number(child));
+
 const SWAP = (usedMb) =>
   `total = 31744.00M  used = ${usedMb.toFixed(2)}M  free = ${(31744 - usedMb).toFixed(2)}M  (encrypted)`;
 
@@ -138,7 +145,45 @@ test('check refuses an unsupported platform and unknown arguments', async () => 
   assert.match(bad.stderr, /Unknown argument: --nope/);
 });
 
-test('stop-owned stops only the processes this run started', async () => {
+test('check enforces the advertised total.rss threshold', async () => {
+  const { root, scripts } = project();
+  const guard = path.join(scripts, 'resource-guard.sh');
+  const sleeper = track(spawn('sleep', ['917'], { stdio: 'ignore' }).pid);
+  assert.ok(alive(sleeper));
+
+  // A threshold the operator configured is never ignored, even with no group: the
+  // summed RSS of no declared groups is 0, and 0 still meets total.rss=0.
+  const bare = await run(guard, ['check', '--json', '--red', 'total.rss=0'], host(root));
+  assert.equal(bare.code, 20, bare.stdout + bare.stderr);
+  const bareOutput = JSON.parse(bare.stdout.trim());
+  assert.equal(typeof bareOutput.totalRssMb, 'number', JSON.stringify(bareOutput));
+  assert.equal(bareOutput.breaches.find((entry) => entry.metric === 'total.rss')?.tier, 'red');
+
+  const red = await run(
+    guard,
+    ['check', '--json', '--group', 'sleeper=sleep 917', '--red', 'total.rss=0'],
+    host(root),
+  );
+  assert.equal(red.code, 20, red.stdout + red.stderr);
+  const redOutput = JSON.parse(red.stdout.trim());
+  assert.equal(redOutput.breaches.find((entry) => entry.metric === 'total.rss')?.tier, 'red');
+
+  const green = await run(
+    guard,
+    ['check', '--json', '--group', 'sleeper=sleep 917', '--red', 'total.rss=100000'],
+    host(root),
+  );
+  assert.equal(green.code, 0, green.stdout + green.stderr);
+
+  const yellow = await run(
+    guard,
+    ['check', '--json', '--group', 'sleeper=sleep 917', '--yellow', 'total.rss=0'],
+    host(root),
+  );
+  assert.equal(yellow.code, 10, yellow.stdout + yellow.stderr);
+});
+
+test('stop-owned never stops a process this run did not start', async () => {
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
@@ -149,24 +194,86 @@ test('stop-owned stops only the processes this run started', async () => {
     guard,
     [
       'start', '--state-dir', state, '--run-tag', 'run-owned', '--interval', '1', '--grace', '1',
-      '--group', 'pre=sleep 733', '--group', 'own=sleep 734',
+      '--group', 'pre=sleep 733', '--group', 'late=sleep 734',
       '--red', 'swap=0', '--on-red', 'stop-owned',
     ],
     host(root, { swap: SWAP(30000) }),
   );
   assert.equal(started.code, 0, started.stdout + started.stderr);
 
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const owned = track(spawn('sleep', ['734'], { stdio: 'ignore' }).pid);
+  // A sibling run's server: it appears after our first sample, but nothing ever tied
+  // it to this run. Appearing later must not be enough to enter our kill set.
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+  const latecomer = track(spawn('sleep', ['734'], { stdio: 'ignore' }).pid);
 
-  await waitFor(() => !alive(owned));
-  assert.equal(alive(owned), false, 'the run-owned process must be stopped');
+  // Two more red samples pass with the latecomer visible.
+  await new Promise((resolve) => setTimeout(resolve, 2500));
+  assert.equal(alive(latecomer), true, 'a process this run never started must survive');
+  assert.equal(alive(preExisting), true, 'a pre-existing process must never be stopped');
+
+  const events = readFileSync(path.join(state, 'events.jsonl'), 'utf8');
+  assert.doesNotMatch(events, /"event":"stop-owned"/, events);
+
+  const stopped = await run(guard, ['stop', '--state-dir', state], host(root));
+  assert.equal(stopped.code, 0, stopped.stdout + stopped.stderr);
+});
+
+test('stop-owned stops what the run tagged, claimed, or claimed the parent of', async () => {
+  const { root, scripts } = project();
+  const guard = path.join(scripts, 'resource-guard.sh');
+  const state = path.join(root, 'guard-state');
+  const preExisting = track(spawn('sleep', ['733'], { stdio: 'ignore' }).pid);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const started = await run(
+    guard,
+    [
+      'start', '--state-dir', state, '--run-tag', 'run-owned', '--interval', '1', '--grace', '1',
+      '--group', 'pre=sleep 733',
+      '--group', 'late=sleep 734',
+      '--group', 'claimed=sleep 736',
+      '--group', 'tagged=RUN_TAG=run-owned',
+      '--group', 'desc=sleep 738',
+      '--red', 'swap=0', '--on-red', 'stop-owned',
+    ],
+    host(root, { swap: SWAP(30000) }),
+  );
+  assert.equal(started.code, 0, started.stdout + started.stderr);
+
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+  const latecomer = track(spawn('sleep', ['734'], { stdio: 'ignore' }).pid);
+  const claimed = track(spawn('sleep', ['736'], { stdio: 'ignore' }).pid);
+  const tagged = track(
+    spawn('/bin/sh', ['-c', 'RUN_TAG=run-owned; while :; do sleep 1; done'], { stdio: 'ignore' }).pid,
+  );
+
+  const claim = await run(guard, ['claim', '--state-dir', state, '--pid', String(claimed)], host(root));
+  assert.equal(claim.code, 0, claim.stdout + claim.stderr);
+
+  // A claimed process brings its children: the dev server this run started is owned
+  // even when the pattern also matches the shell that launched it. The trailing `:`
+  // keeps the shell from exec-ing the sleep away, so there is a real child.
+  const parent = track(spawn('/bin/sh', ['-c', 'sleep 738; :'], { stdio: 'ignore' }).pid);
+  assert.ok(await waitFor(() => childrenOf(parent).length > 0), 'the shell must have a child');
+  const child = track(childrenOf(parent)[0]);
+  const claimParent = await run(guard, ['claim', '--state-dir', state, '--pid', String(parent)], host(root));
+  assert.equal(claimParent.code, 0, claimParent.stdout + claimParent.stderr);
+
+  await waitFor(() => !alive(claimed) && !alive(tagged) && !alive(child));
+  assert.equal(alive(claimed), false, 'a claimed process must be stopped');
+  assert.equal(alive(tagged), false, 'a process carrying the run tag must be stopped');
+  assert.equal(alive(child), false, "a claimed process's child must be stopped");
+  assert.equal(alive(latecomer), true, 'a process this run never claimed or tagged must survive');
   assert.equal(alive(preExisting), true, 'a pre-existing process must never be stopped');
 
   const events = readFileSync(path.join(state, 'events.jsonl'), 'utf8').trim().split('\n').map(JSON.parse);
   const stops = events.filter((event) => event.event === 'stop-owned');
   assert.ok(stops.some((event) => event.signal === 'TERM'), JSON.stringify(events));
-  assert.ok(stops.every((event) => event.group === 'own'), JSON.stringify(events));
+  assert.deepEqual(
+    [...new Set(stops.map((event) => event.group))].sort(),
+    ['claimed', 'desc', 'tagged'],
+    JSON.stringify(events),
+  );
 
   const status = await run(guard, ['status', '--state-dir', state, '--json'], host(root));
   assert.equal(status.code, 0, status.stdout + status.stderr);
@@ -178,6 +285,35 @@ test('stop-owned stops only the processes this run started', async () => {
 
   const stopped = await run(guard, ['stop', '--state-dir', state], host(root));
   assert.equal(stopped.code, 0, stopped.stdout + stopped.stderr);
+});
+
+test('every guard invocation in the reference carries the flags its mode needs', () => {
+  const doc = readFileSync(
+    new URL('../skills/acceptance/references/resource-guard.md', import.meta.url),
+    'utf8',
+  );
+  // The reference spells the script as $GUARD; resolve it so a documented command
+  // line can be checked the way a reader would copy it.
+  const resolved = doc.replace(/^GUARD=.*$/gm, '').replace(/\$GUARD/g, 'resource-guard.sh');
+  const required = {
+    check: [],
+    start: ['--state-dir'],
+    claim: ['--state-dir', '--pid'],
+    status: ['--state-dir'],
+    stop: ['--state-dir'],
+  };
+  const invocations = resolved
+    .replace(/\\\n\s*/g, ' ')
+    .split('\n')
+    .map((line, index) => ({ line, index }))
+    .filter(({ line }) => /resource-guard\.sh["']?\s+(check|start|claim|stop|status)\b/.test(line));
+  assert.ok(invocations.length >= 4, 'the reference must still show a run and a teardown');
+  for (const { line } of invocations) {
+    const mode = line.match(/resource-guard\.sh["']?\s+(check|start|claim|stop|status)\b/)[1];
+    for (const flag of required[mode]) {
+      assert.ok(line.includes(flag), `${mode} example is missing ${flag}: ${line.trim()}`);
+    }
+  }
 });
 
 test('warn never signals a process', async () => {
