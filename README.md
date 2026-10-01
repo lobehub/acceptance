@@ -261,6 +261,7 @@ In Claude Code, run `/reload-plugins` when prompted, or start a new session.
 | [Project setup](skills/acceptance/references/project-adapter.md) | Commands, ports, auth, and surfaces for a repository |
 | [Evidence guide](skills/acceptance/references/evidence.md) | What to capture for a check |
 | [Report format](skills/acceptance/references/report.md) | How a published round is structured |
+| [Resource guard](skills/acceptance/references/resource-guard.md) | Keeping a run's memory use from freezing the host |
 
 <div align="right">
 
