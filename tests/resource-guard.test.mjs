@@ -26,6 +26,8 @@ function project() {
 // A stub host: uname/sysctl/vm_stat are fully faked, while ps, kill and the rest
 // fall through to the real system so ownership can be exercised against real
 // processes rather than a simulated table.
+// Create it once before starting a watcher and reuse the returned environment:
+// rewriting these scripts while sampling can expose empty files to the watcher.
 function host(root, options = {}) {
   const {
     platform = 'Darwin',
@@ -187,6 +189,7 @@ test('stop-owned never stops a process this run did not start', async () => {
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
+  const env = host(root, { swap: SWAP(30000) });
   const preExisting = track(spawn('sleep', ['733'], { stdio: 'ignore' }).pid);
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -197,7 +200,7 @@ test('stop-owned never stops a process this run did not start', async () => {
       '--group', 'pre=sleep 733', '--group', 'late=sleep 734',
       '--red', 'swap=0', '--on-red', 'stop-owned',
     ],
-    host(root, { swap: SWAP(30000) }),
+    env,
   );
   assert.equal(started.code, 0, started.stdout + started.stderr);
 
@@ -214,7 +217,7 @@ test('stop-owned never stops a process this run did not start', async () => {
   const events = readFileSync(path.join(state, 'events.jsonl'), 'utf8');
   assert.doesNotMatch(events, /"event":"stop-owned"/, events);
 
-  const stopped = await run(guard, ['stop', '--state-dir', state], host(root));
+  const stopped = await run(guard, ['stop', '--state-dir', state], env);
   assert.equal(stopped.code, 0, stopped.stdout + stopped.stderr);
 });
 
@@ -222,6 +225,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
+  const env = host(root, { swap: SWAP(30000) });
   const preExisting = track(spawn('sleep', ['733'], { stdio: 'ignore' }).pid);
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -236,7 +240,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
       '--group', 'desc=sleep 738',
       '--red', 'swap=0', '--on-red', 'stop-owned',
     ],
-    host(root, { swap: SWAP(30000) }),
+    env,
   );
   assert.equal(started.code, 0, started.stdout + started.stderr);
 
@@ -247,7 +251,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
     spawn('/bin/sh', ['-c', 'RUN_TAG=run-owned; while :; do sleep 1; done'], { stdio: 'ignore' }).pid,
   );
 
-  const claim = await run(guard, ['claim', '--state-dir', state, '--pid', String(claimed)], host(root));
+  const claim = await run(guard, ['claim', '--state-dir', state, '--pid', String(claimed)], env);
   assert.equal(claim.code, 0, claim.stdout + claim.stderr);
 
   // A claimed process brings its children: the dev server this run started is owned
@@ -256,7 +260,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
   const parent = track(spawn('/bin/sh', ['-c', 'sleep 738; :'], { stdio: 'ignore' }).pid);
   assert.ok(await waitFor(() => childrenOf(parent).length > 0), 'the shell must have a child');
   const child = track(childrenOf(parent)[0]);
-  const claimParent = await run(guard, ['claim', '--state-dir', state, '--pid', String(parent)], host(root));
+  const claimParent = await run(guard, ['claim', '--state-dir', state, '--pid', String(parent)], env);
   assert.equal(claimParent.code, 0, claimParent.stdout + claimParent.stderr);
 
   await waitFor(() => !alive(claimed) && !alive(tagged) && !alive(child));
@@ -275,7 +279,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
     JSON.stringify(events),
   );
 
-  const status = await run(guard, ['status', '--state-dir', state, '--json'], host(root));
+  const status = await run(guard, ['status', '--state-dir', state, '--json'], env);
   assert.equal(status.code, 0, status.stdout + status.stderr);
   const summary = JSON.parse(status.stdout.trim());
   assert.equal(summary.running, true);
@@ -283,7 +287,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
   assert.equal(summary.red, summary.samples);
   assert.equal(summary.yellow, 0);
 
-  const stopped = await run(guard, ['stop', '--state-dir', state], host(root));
+  const stopped = await run(guard, ['stop', '--state-dir', state], env);
   assert.equal(stopped.code, 0, stopped.stdout + stopped.stderr);
 });
 
@@ -320,11 +324,12 @@ test('warn never signals a process', async () => {
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
+  const env = host(root, { swap: SWAP(30000) });
   const sleeper = track(spawn('sleep', ['735'], { stdio: 'ignore' }).pid);
   const started = await run(
     guard,
     ['start', '--state-dir', state, '--interval', '1', '--group', 'own=sleep 735', '--red', 'swap=0'],
-    host(root, { swap: SWAP(30000) }),
+    env,
   );
   assert.equal(started.code, 0, started.stdout + started.stderr);
   await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -332,5 +337,5 @@ test('warn never signals a process', async () => {
   const events = readFileSync(path.join(state, 'events.jsonl'), 'utf8');
   assert.match(events, /"action":"none"/);
   assert.doesNotMatch(events, /stop-owned/);
-  await run(guard, ['stop', '--state-dir', state], host(root));
+  await run(guard, ['stop', '--state-dir', state], env);
 });
