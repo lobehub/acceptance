@@ -74,6 +74,10 @@ test("published versions keep their distributed files unchanged", (t) => {
   );
 });
 
+// Default-branch installs (`npx skills add` and `lh acceptance update`) consume
+// main without waiting for a release tag. A content change without a version bump
+// would give main and tagged/cached installs different content under the same
+// version, so distributed changes must bump both versions before merging.
 test("distributed changes increase the version from the base commit", (t) => {
   const base = process.env.SKILL_VERSION_BASE;
   if (process.env.GITHUB_REF_TYPE === "tag" || !base || /^0+$/.test(base)) {
