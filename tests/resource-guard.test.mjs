@@ -34,6 +34,7 @@ function host(root, options = {}) {
     swap = 'total = 31744.00M  used = 8000.00M  free = 23744.00M  (encrypted)',
     freePages = 400000,
     memsize = 17179869184,
+    pressure = '1',
   } = options;
   const bin = path.join(root, 'bin');
   mkdirSync(bin, { recursive: true });
@@ -41,12 +42,31 @@ function host(root, options = {}) {
   const script = (name, body) =>
     writeFileSync(path.join(bin, name), `#!/bin/sh\n${body}\n`, { mode: 0o755 });
   script('uname', `echo '${platform}'`);
-  script('sysctl', `case "$2" in vm.swapusage) echo '${swap}' ;; hw.memsize) echo ${memsize} ;; esac`);
+  script('sysctl', `case "$2" in
+    vm.swapusage) echo '${swap}' ;;
+    hw.memsize) echo ${memsize} ;;
+    kern.memorystatus_vm_pressure_level)
+      value='${pressure}'
+      if [ -f "$GUARD_TEST_ROOT/sequence" ]; then
+        n=$(cat "$GUARD_TEST_ROOT/index")
+        n=$((n + 1))
+        echo "$n" > "$GUARD_TEST_ROOT/index"
+        value=$(sed -n "$n"p "$GUARD_TEST_ROOT/sequence")
+      fi
+      [ "$value" != missing ] || exit 1
+      echo "$value"
+      ;;
+    *) exit 1 ;;
+  esac`);
   script(
     'vm_stat',
     `printf 'Mach Virtual Memory Statistics: (page size of 16384 bytes)\\nPages free: ${freePages}.\\nPages speculative: 0.\\n'`,
   );
-  return { PATH: `${bin}${path.delimiter}${process.env.PATH}`, TMPDIR: path.join(root, 'tmp') };
+  return {
+    GUARD_TEST_ROOT: root,
+    PATH: `${bin}${path.delimiter}${process.env.PATH}`,
+    TMPDIR: path.join(root, 'tmp'),
+  };
 }
 
 function run(file, args, env = {}, timeout = 5000) {
@@ -99,24 +119,130 @@ const childrenOf = (pid) =>
 const SWAP = (usedMb) =>
   `total = 31744.00M  used = ${usedMb.toFixed(2)}M  free = ${(31744 - usedMb).toFixed(2)}M  (encrypted)`;
 
-for (const [scenario, usedMb, tier, code, options] of [
-  ['a low tier', 1000, 'green', 0, {}],
-  ['a yellow tier', 23000, 'yellow', 10, {}],
-  ['a red tier', 30000, 'red', 20, {}],
-  ['an unknown pct when swap is not configured', 0, 'green', 0, { swap: SWAP(0) }],
+for (const [scenario, pressure, status, tier, code] of [
+  ['normal pressure despite low free RAM and high swap use', '1', 'normal', 'green', 0],
+  ['warning pressure', '2', 'warning', 'yellow', 10],
+  ['critical pressure', '4', 'critical', 'red', 20],
+  ['a missing pressure signal', 'missing', 'unknown', 'unknown', 2],
+  ['an unrecognized pressure value', '8', 'unknown', 'unknown', 2],
 ]) {
   test(`check reports ${scenario} and exits ${code}`, async () => {
     const { root, scripts } = project();
     const result = await run(
       path.join(scripts, 'resource-guard.sh'),
       ['check', '--json'],
-      host(root, { swap: SWAP(usedMb), ...options }),
+      host(root, { pressure, swap: SWAP(30000), freePages: 41943 }),
     );
     assert.equal(result.code, code, result.stdout + result.stderr);
     const output = JSON.parse(result.stdout.trim());
     assert.equal(output.tier, tier);
     assert.equal(output.platform, 'Darwin');
+    assert.deepEqual(output.pressure, { level: status === 'unknown' ? null : Number(pressure), status });
+    assert.equal(output.free.pct, 4);
+    assert.equal(output.swap.usedMb, 30000);
     assert.deepEqual(output.groups, {});
+  });
+}
+
+test('warning pressure cannot downgrade a red process budget or its exit code', async () => {
+  const { root, scripts } = project();
+  const result = await run(
+    path.join(scripts, 'resource-guard.sh'),
+    ['check', '--json', '--red', 'total.rss=0'],
+    host(root, { pressure: '2' }),
+  );
+  assert.equal(result.code, 20, result.stdout + result.stderr);
+  const output = JSON.parse(result.stdout);
+  assert.equal(output.tier, 'red');
+  assert.deepEqual(output.breaches.map(({ tier }) => tier), ['red', 'yellow']);
+});
+
+// Exercise the real /proc readers on Linux CI without applying memory pressure.
+for (const [yellow, red, tier, code, metric] of [
+  ['swap=101,free=-1', 'swap=101,free=-1', 'green', 0, null],
+  ['swap=0,free=-1', 'swap=101,free=-1', 'yellow', 10, 'swap'],
+  ['swap=101,free=-1', 'swap=0,free=-1', 'red', 20, 'swap'],
+  ['swap=101,free=100', 'swap=101,free=-1', 'yellow', 10, 'free'],
+  ['swap=101,free=-1', 'swap=101,free=100', 'red', 20, 'free'],
+]) {
+  test(`Linux preserves ${metric ?? 'healthy'} thresholds: ${tier}`, {
+    skip: process.platform !== 'linux',
+  }, async () => {
+    const { root, scripts } = project();
+    const result = await run(
+      path.join(scripts, 'resource-guard.sh'),
+      ['check', '--json', '--yellow', yellow, '--red', red],
+      host(root, { platform: 'Linux' }),
+    );
+    assert.equal(result.code, code, result.stdout + result.stderr);
+    const output = JSON.parse(result.stdout);
+    assert.equal(output.tier, tier);
+    assert.equal(output.pressure, null);
+    assert.equal(output.platform, 'Linux');
+    assert.ok(output.free.pct >= 0 && output.free.pct <= 100);
+    assert.deepEqual(output.breaches.map(({ metric }) => metric), metric ? [metric] : []);
+  });
+}
+
+test('Linux stop-owned acts on the first red sample', {
+  skip: process.platform !== 'linux',
+}, async () => {
+  const { root, scripts } = project();
+  const env = host(root, { platform: 'Linux' });
+  const state = path.join(root, 'guard-state');
+  mkdirSync(state);
+  writeFileSync(path.join(root, 'bin/ps'), '#!/bin/sh\nexit 0\n', { mode: 0o755 });
+  writeFileSync(path.join(root, 'bin/sleep'),
+    '#!/bin/sh\nrm -f "$GUARD_TEST_ROOT/guard-state/guard.pid"\n', { mode: 0o755 });
+  writeFileSync(path.join(state, 'config'), 'ON_RED=stop-owned\nRED=free=100\n');
+  writeFileSync(path.join(state, 'guard.pid'), '');
+  const result = await run(path.join(scripts, 'resource-guard.sh'), ['__watch', '--state-dir', state], env);
+  assert.equal(result.code, 0, result.stdout + result.stderr);
+  const event = JSON.parse(readFileSync(path.join(state, 'events.jsonl'), 'utf8'));
+  assert.equal(event.action, 'stop-owned');
+  assert.equal(event.consecutiveRed, 1);
+});
+
+for (const [sequence, actions] of [
+  [['1', '1', '1'], []],
+  [['4', '4'], ['pending', 'pending']],
+  [['4', '4', '4'], ['pending', 'pending', 'stop-owned']],
+  ...['1', '2', 'missing', '8'].map((reset) => [
+    ['4', '4', reset, '4', '4', '4'],
+    ['pending', 'pending', ...(reset === '1' ? [] : ['none']), 'pending', 'pending', 'stop-owned'],
+  ]),
+]) {
+  test(`macOS watcher confirms consecutive red samples: ${sequence.join(',')}`, async () => {
+    const { root, scripts } = project();
+    const guard = path.join(scripts, 'resource-guard.sh');
+    const env = host(root);
+    const state = path.join(root, 'guard-state');
+    mkdirSync(state);
+    writeFileSync(path.join(root, 'sequence'), sequence.join('\n') + '\n');
+    writeFileSync(path.join(root, 'index'), '0\n');
+    // No groups or real process table: exercise the action gate without signaling anyone.
+    writeFileSync(path.join(root, 'bin/ps'), '#!/bin/sh\nexit 0\n', { mode: 0o755 });
+    writeFileSync(path.join(root, 'bin/sleep'), `#!/bin/sh
+      n=$(cat "$GUARD_TEST_ROOT/index")
+      if [ "$n" -ge ${sequence.length} ]; then rm -f "$GUARD_TEST_ROOT/guard-state/guard.pid"; fi
+    `, { mode: 0o755 });
+    writeFileSync(path.join(state, 'config'), 'ON_RED=stop-owned\n');
+    writeFileSync(path.join(state, 'guard.pid'), '');
+    writeFileSync(path.join(state, 'events.jsonl'), '');
+    const result = await run(guard, ['__watch', '--state-dir', state], env, 10000);
+    assert.equal(result.code, 0, result.stdout + result.stderr);
+    const events = readFileSync(path.join(state, 'events.jsonl'), 'utf8')
+      .trim().split('\n').filter(Boolean).map(JSON.parse);
+    assert.deepEqual(events.map(({ action }) => action), actions);
+    assert.deepEqual(
+      events.filter(({ action }) => action === 'stop-owned').map(({ consecutiveRed }) => consecutiveRed),
+      actions.includes('stop-owned') ? [3] : [],
+    );
+    const status = await run(guard, ['status', '--state-dir', state, '--json'], env);
+    assert.equal(status.code, 0, status.stdout + status.stderr);
+    const summary = JSON.parse(status.stdout);
+    assert.equal(summary.samples, sequence.length);
+    assert.equal(summary.unknown, sequence.filter((value) => ['missing', '8'].includes(value)).length);
   });
 }
 
@@ -189,7 +315,7 @@ test('stop-owned never stops a process this run did not start', async () => {
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
-  const env = host(root, { swap: SWAP(30000) });
+  const env = host(root, { pressure: '4' });
   const preExisting = track(spawn('sleep', ['733'], { stdio: 'ignore' }).pid);
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -198,7 +324,7 @@ test('stop-owned never stops a process this run did not start', async () => {
     [
       'start', '--state-dir', state, '--run-tag', 'run-owned', '--interval', '1', '--grace', '1',
       '--group', 'pre=sleep 733', '--group', 'late=sleep 734',
-      '--red', 'swap=0', '--on-red', 'stop-owned',
+      '--on-red', 'stop-owned',
     ],
     env,
   );
@@ -225,7 +351,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
-  const env = host(root, { swap: SWAP(30000) });
+  const env = host(root, { pressure: '4' });
   const preExisting = track(spawn('sleep', ['733'], { stdio: 'ignore' }).pid);
   await new Promise((resolve) => setTimeout(resolve, 300));
 
@@ -238,7 +364,7 @@ test('stop-owned stops what the run tagged, claimed, or claimed the parent of', 
       '--group', 'claimed=sleep 736',
       '--group', 'tagged=RUN_TAG=run-owned',
       '--group', 'desc=sleep 738',
-      '--red', 'swap=0', '--on-red', 'stop-owned',
+      '--on-red', 'stop-owned',
     ],
     env,
   );
@@ -324,11 +450,11 @@ test('warn never signals a process', async () => {
   const { root, scripts } = project();
   const guard = path.join(scripts, 'resource-guard.sh');
   const state = path.join(root, 'guard-state');
-  const env = host(root, { swap: SWAP(30000) });
+  const env = host(root, { pressure: '4' });
   const sleeper = track(spawn('sleep', ['735'], { stdio: 'ignore' }).pid);
   const started = await run(
     guard,
-    ['start', '--state-dir', state, '--interval', '1', '--group', 'own=sleep 735', '--red', 'swap=0'],
+    ['start', '--state-dir', state, '--interval', '1', '--group', 'own=sleep 735'],
     env,
   );
   assert.equal(started.code, 0, started.stdout + started.stderr);
