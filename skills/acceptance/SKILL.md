@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.7.4"
+  version: "0.7.5"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -477,8 +477,9 @@ Coverage: 2/2 criteria, all required evidence uploaded
 
 - **Engine-level capture over OS capture.** `agent-browser screenshot` / `dom` /
   `eval` run headless; `screencapture` / osascript are macOS-only. iOS: `xcrun
-simctl io` over host-window capture. Rounds land under `.acceptances/`, which
-  the CLI keeps out of git.
+simctl io` over host-window capture. Rounds land under `.acceptances/`;
+  allocate them with `new_round` ([report.md](references/report.md#no-operation-id-needed)),
+  which seeds the `.acceptances/.gitignore` that keeps them out of git.
 - **Upload as you go.** Evidence keyed to its check mid-run survives a crash near
   the end.
 - **Don't invent evidence.** Capture only the types a check declares.
