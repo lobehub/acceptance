@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, test } from 'node:test';
@@ -58,7 +66,7 @@ test('new_round keeps an existing ignore file and earlier rounds', () => {
   writeFileSync(path.join(root, first, 'result.json'), '{"keep":true}');
   writeFileSync(path.join(root, '.acceptances/.gitignore'), '*\n# project note\n');
 
-  sh(root, 'sleep 1; new_round topic-tpc_x repair');
+  sh(root, 'new_round topic-tpc_x repair');
 
   assert.equal(
     readFileSync(path.join(root, '.acceptances/.gitignore'), 'utf8'),
@@ -67,4 +75,24 @@ test('new_round keeps an existing ignore file and earlier rounds', () => {
   assert.equal(readFileSync(path.join(root, first, 'result.json'), 'utf8'), '{"keep":true}');
   assert.equal(readFileSync(path.join(root, '.gitignore'), 'utf8'), 'node_modules\n');
   assert.equal(status(root), '?? .gitignore\n');
+});
+
+test('new_round fails without a directory when the ignore file cannot be written', (t) => {
+  if (process.getuid?.() === 0) return t.skip('root ignores directory permissions');
+  const root = repo();
+  mkdirSync(path.join(root, '.acceptances/standalone-demo'), { recursive: true });
+  chmodSync(path.join(root, '.acceptances'), 0o555);
+  cleanups.push(() => chmodSync(path.join(root, '.acceptances'), 0o755));
+
+  const result = spawnSync(
+    '/bin/bash',
+    ['-c', `${newRound}\nnew_round standalone-demo first-pass`],
+    {
+      cwd: root,
+      encoding: 'utf8',
+    },
+  );
+
+  assert.notEqual(result.status, 0);
+  assert.equal(result.stdout, '');
 });

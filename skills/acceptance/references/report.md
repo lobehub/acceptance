@@ -37,7 +37,7 @@ new_round() {
   mkdir -p "$dir/assets" || return
   # Fresh clones and worktrees never carry the self-ignoring file, so seed it
   # before anything is written; an existing one is left untouched.
-  [ -e .acceptances/.gitignore ] || printf '*\n' > .acceptances/.gitignore
+  [ -e .acceptances/.gitignore ] || printf '*\n' > .acceptances/.gitignore || return
   printf '%s' "$dir"
 }
 ```
