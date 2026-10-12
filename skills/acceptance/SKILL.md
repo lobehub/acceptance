@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.7.3"
+  version: "0.7.4"
 description: >
   End-to-end verification and self-evidence for a delivery in any repository,
   with or without a preconfigured verify plan. Discover an existing plan when
@@ -334,6 +334,15 @@ passing tests support that evidence; they do not replace it.
   [report.md](references/report.md#structured-visualizations). **A deliverable
   the user hears needs `audio`** —
   [evidence.md](references/evidence.md#audio-deliverables).
+- **A change to UI users already see needs before/after evidence.** When the
+  delivery changes existing copy, labels, toasts, layout, or style, each such
+  case requires a `comparison` pair of the same view on the pre-change and
+  post-change code — [report.md](references/report.md#beforeafter-comparison-pairs).
+  An after-only shot of a toast reading `重命名遇到了问题，请重试` does not show
+  it replaced `Rename failed`. Prove the before half really runs the old code
+  ([probe-mock-patterns.md](references/probe-mock-patterns.md) A6); text that
+  does not render visibly, such as an `aria-label`, also needs the DOM reading.
+  UI with no prior state is exempt.
 - **Auth is a gate scoped to the surface**: authenticate that surface first or
   every capture lands on the sign-in page. Web:
   [auth-web.md](references/auth-web.md).
