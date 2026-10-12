@@ -402,7 +402,11 @@ Choose the layout by comparison intent, not by the source image dimensions:
   full width matters more than simultaneous scanning, such as a very wide,
   shallow toolbar or timeline strip.
 
-A comparison pair means the same view in two states — sequential steps of a
+A comparison pair means the same view, reached by the same operation and held
+in the same state, on the pre-change code (`before`) and the delivered code
+(`after`). Two states of one build — loading vs loaded, empty vs filled — are
+ordinary evidence, not a pair; a skeleton change pairs the old skeleton with
+the new one, and the loaded page goes in plain evidence. Sequential steps of a
 flow are ordinary ordered evidence with captions, not a pair.
 
 ### Video chapters
