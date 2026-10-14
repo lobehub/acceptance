@@ -9,11 +9,11 @@ const operationId = "operation-from-invocation";
 const runId = "cf6a8660-27d8-43d0-b615-0453515393a0";
 const acceptanceId = "d9a8b4d7-30ee-42c9-8f88-4790a8e474ca";
 const attachedRun = { id: runId, operationId, acceptanceId, roundIndex: 3 };
-const commands = [
-  ["doctor", "--offline", "--json"],
-  ["verify", "plan", "state", operationId, "--json"],
-  ["acceptance", "run", "get", runId, "--json"],
-];
+const doctorCall = ["doctor", "--offline", "--json"];
+const planStateCall = ["acceptance", "plan", "state", operationId, "--json"];
+const legacyPlanStateCall = ["verify", "plan", "state", operationId, "--json"];
+const runGetCall = ["acceptance", "run", "get", runId, "--json"];
+const commands = [doctorCall, planStateCall, legacyPlanStateCall, runGetCall];
 
 // Execute the published example with only the read-only CLI boundary substituted.
 function handoff(t, options = {}) {
@@ -40,6 +40,7 @@ function handoff(t, options = {}) {
     doctorExit: 0,
     endpointStatus: "ok",
     lookupExit: 0,
+    legacyCli: false,
     ...options,
   };
   writeFileSync(path.join(dir, "fixtures.json"), JSON.stringify(fixtures));
@@ -55,8 +56,12 @@ if (command === 0) {
   console.log(JSON.stringify({ checks: [{ id: 'endpoints.resolution', status: fixture.endpointStatus, evidence: { serverUrl: fixture.server } }] }));
   process.exit(fixture.doctorExit);
 } else if (command === 1) {
+  // A CLI that predates \`lh acceptance plan\` rejects it as an unknown command.
+  if (fixture.legacyCli) { console.error("error: unknown command 'plan'"); process.exit(1); }
   console.log(JSON.stringify(fixture.state));
 } else if (command === 2) {
+  console.log(JSON.stringify(fixture.state));
+} else if (command === 3) {
   if (fixture.lookupExit) process.exit(fixture.lookupExit);
   console.log(JSON.stringify(fixture.run));
 } else {
@@ -79,8 +84,11 @@ if (command === 0) {
     .trim()
     .split("\n")
     .map(JSON.parse);
-  assert.deepEqual(calls, commands.slice(0, calls.length));
-  if (result.status === 0) assert.equal(calls.length, commands.length);
+  const expected = fixtures.legacyCli
+    ? [doctorCall, planStateCall, legacyPlanStateCall, runGetCall]
+    : [doctorCall, planStateCall, runGetCall];
+  assert.deepEqual(calls, expected.slice(0, calls.length));
+  if (result.status === 0) assert.equal(calls.length, expected.length);
   return result;
 }
 
@@ -114,6 +122,12 @@ test("artifact plans use the same lookup without resubmitting evidence", (t) => 
     },
   });
   assert.equal(result.status, 0, result.stderr);
+});
+
+test("a CLI without `lh acceptance plan` falls back to `lh verify plan state`", (t) => {
+  const result = handoff(t, { legacyCli: true });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).acceptanceUrl, `https://lobehub.com/acceptance/${acceptanceId}`);
 });
 
 test("unrelated doctor failures do not discard a resolved server", (t) => {

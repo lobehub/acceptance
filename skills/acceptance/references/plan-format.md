@@ -8,7 +8,10 @@ discipline — surface guides, recordings with [chapters](./video-chapters.md),
 before/after pairs, screenshots you looked at. Never mix this path with an
 authored ingest for one round.
 
-## Read the frozen plan — `lh verify plan state $OPERATION_ID --json`
+## Read the frozen plan — `lh acceptance plan state $OPERATION_ID --json`
+
+A CLI that predates `lh acceptance plan` has the same command as
+`lh verify plan state`.
 
 Returns the run's verify state plus the **frozen plan** (immutable once
 confirmed):
@@ -143,7 +146,7 @@ capture and supplement it; then hand off per SKILL.md (acceptance URL +
 ## Resolve the plan round's handoff links
 
 `ingest --operation --json` returns `acceptanceUrl`; copy it. Some plans need no evidence at all, and an older CLI's `result submit --json` returns only an internal `url`. In those cases, resolve
-the supplied operation ID with `lh verify plan state <operationId> --json`, then
+the supplied operation ID with `lh acceptance plan state <operationId> --json`, then
 read its `verifyRunId` using `lh acceptance run get <runId> --json`. The run's
 `acceptanceId` and `roundIndex` identify the existing handoff; do not substitute a
 result ID, subject ID, or the most recent round from another acceptance.
@@ -170,8 +173,15 @@ if (!['ok', 'warn'].includes(endpoint?.status) || !endpoint.evidence?.serverUrl)
 const server = new URL(endpoint.evidence.serverUrl);
 const isCloud = server.hostname === 'lobehub.com' || server.hostname.endsWith('.lobehub.com');
 const origin = isCloud ? 'https://lobehub.com' : server.origin;
-const query = (...args) => JSON.parse(execFileSync('lh', [...args, '--json'], { encoding: 'utf8' }));
-const state = query('verify', 'plan', 'state', operationId);
+const query = (...args) =>
+  JSON.parse(execFileSync('lh', [...args, '--json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }));
+// `lh acceptance plan` is the current spelling; an older CLI only has `lh verify plan`.
+let state;
+try {
+  state = query('acceptance', 'plan', 'state', operationId);
+} catch {
+  state = query('verify', 'plan', 'state', operationId);
+}
 const runId = state?.verifyRunId;
 if (!runId) throw new Error('Handoff blocked: the operation has no verification run.');
 const run = query('acceptance', 'run', 'get', runId);
@@ -194,5 +204,6 @@ round nor supplies a verifier verdict or user acceptance.
 
 If the lookup fails or the run has no acceptance association, preserve the
 evidence and report the handoff as blocked so the owning workflow can link the
-existing run. Do not invent an acceptance ID, expose the internal `/verify/` URL,
+existing run. Do not invent an acceptance ID, hand off a `/verify/` link (it only
+redirects to the acceptance page),
 create a replacement acceptance, or ingest a duplicate round to obtain a link.
