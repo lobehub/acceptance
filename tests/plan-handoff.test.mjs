@@ -18,7 +18,7 @@ const commands = [doctorCall, planStateCall, legacyPlanStateCall, runGetCall];
 // Execute the published example with only the read-only CLI boundary substituted.
 function handoff(t, options = {}) {
   const markdown = readFileSync(
-    new URL("../skills/acceptance/references/plan-format.md", import.meta.url),
+    new URL("../skills/acceptance/references/legacy-plan-handoff.md", import.meta.url),
     "utf8",
   );
   const code = markdown.match(
