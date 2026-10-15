@@ -173,8 +173,10 @@ language**: write every human-readable field (title, plan, case names,
 observations, evidence descriptions, conclusion, `report.md`, `proposal.md`) in
 it, even when the prompt that invoked you is in another language — a delegating
 agent's prompt does not show which language the user reads. The publish commands
-reject text in the wrong script, so use the CLI's non-publishing validation
-when supported as soon as the plan is in `result.json`, before executing it.
+reject text in the wrong script, so run `lh acceptance run ingest <dir> --dry-run`
+with the same target flags the publish will use as soon as the plan is in
+`result.json`, before executing it. Offline `validate` does not check account
+language or remote plan membership and never replaces this dry-run.
 Never publish merely to test whether a payload is accepted. When
 `language.status` is `unset`, use the language the user converses in. On a CLI
 without `preflight`, check auth with `lh acceptance run list --json`.
