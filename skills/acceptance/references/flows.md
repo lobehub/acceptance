@@ -9,9 +9,10 @@ reject independently. Keep shared entry/accessibility checks separate and avoid
 repeating their expectations across business checks.
 
 When acceptance depends on a sequence of user states, publish its graph during
-planning, before implementation or verification begins. Keep the checklist paths
-above for independent checks;
-a graph is optional and does not replace evidence or human review.
+planning, before implementation or verification begins. Keep independent checks
+on their checklist path — authored checks in [report.md](report.md), or the
+frozen operation plan in [plan-format.md](plan-format.md) — alongside any flow.
+A graph is optional and does not replace that checklist, evidence or human review.
 
 For flow-based plans, **each flow's title is its checks' default checklist category**.
 Publish independent user journeys as separate flows in the same acceptance/run;
