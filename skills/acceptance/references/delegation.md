@@ -132,7 +132,8 @@ holds the handoff incomplete even if the execution command succeeded.
 
 Publish only after the primary resolves findings and sends the publication gate.
 Use the assigned authored or operation-plan path; preserve supplied subject/operation
-IDs. Return the actual CLI result, warnings, uploaded coverage, acceptance URL and
+IDs. In local mode the gate releases a render instead of an ingest. Return the actual
+CLI result, warnings, uploaded or rendered coverage, acceptance URL or report URL and
 recovery metadata. Apply quota recovery rather than blind retries. Close only this
 run's sessions/services/guard and record cleanup and any resource-blocked cases.
 Do not publish merely because the report file exists or a worker budget expired.

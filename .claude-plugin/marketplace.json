@@ -10,7 +10,7 @@
     {
       "name": "acceptance",
       "source": "./",
-      "description": "Verify features and fixes against requirements, collect product evidence, and publish results for review with LobeHub."
+      "description": "Verify features and fixes against requirements, collect product evidence, and review the results in a local report or publish them for team review with LobeHub."
     }
   ]
 }

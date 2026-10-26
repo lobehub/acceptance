@@ -1,15 +1,18 @@
-# Structured Report Rounds (`lh acceptance run ingest`)
+# Structured Report Rounds (`lh acceptance run ingest` / `render`)
 
 Every round is a **structured report round**: a self-contained directory that
-`lh acceptance run ingest` uploads as one immutable verification round. You
+`lh acceptance run ingest` uploads as one immutable verification round, or that
+`lh acceptance run render` turns into the local acceptance page when this machine
+is not signed in ([Local reports](../SKILL.md#local-reports-when-not-signed-in)). You
 author the checks here, which is the usual case; when a verify plan was handed to
 you, the same directory is keyed by its check item ids and ingested into the
 plan's round ([plan-format.md](./plan-format.md)). The
 acceptance page renders itself from `result.json`: provenance, the overall
 conclusion, and the check list from `plan[]` paired with `cases[]`, each with
 its evidence inline — **images render as figures, before/after pairs render
-under tinted comparison bands**. A chat-only summary or a bare markdown report
-never gets that rendering; the structured round does.
+under tinted comparison bands**. The local `report.html` is the same page. A
+chat-only summary or a bare markdown report never gets that rendering; the
+structured round does.
 
 ## Contents
 
@@ -68,7 +71,9 @@ Rounds live under `.acceptances/`, grouped by the delivery they belong to:
 ├── .gitignore                     # `*` — the whole tree stays out of git
 └── <subject-key>/                 # topic-tpc_x | task-T-12 | document-doc_x
     │                              # standalone-<slug> until an acceptance id exists
-    ├── acceptance.json            # which acceptance these rounds belong to
+    ├── acceptance.json            # which acceptance these rounds belong to (CLI-written)
+    ├── report.html                # local mode: the rendered page of every round
+    ├── reviews.json               # local mode: the reader's saved decisions
     └── <YYYYMMDD-HHMMSS>-<slug>/  # ONE round — never write into an existing one
         ├── result.json            # THE report — the page renders from this
         ├── proposal.md            # what this round delivers, posted to the discussion
@@ -168,11 +173,14 @@ supersedes? }`.
 
    ```bash
    lh acceptance run ingest "$REPORT_DIR" --source agent-testing --json
+   # local mode: render instead; same round directory, nothing uploaded
+   lh acceptance run render "$REPORT_DIR" --json
    ```
 
-   On the first ingest, add `--requirement "<one-sentence business goal>"`.
+   On the first ingest or render, add `--requirement "<one-sentence business goal>"`.
    Describe the durable goal of the whole acceptance, not this round's narrower
-   implementation scope.
+   implementation scope. Never edit `acceptance.json`, `reviews.json` or
+   `report.html` by hand: the CLI owns them, and a render rewrites the page.
 
    Grouping needs nothing from you: the command attaches the round to the
    conversation it was invoked from when it can, and otherwise creates a
@@ -184,7 +192,8 @@ supersedes? }`.
    `acceptanceUrl` verbatim in the final reply; do not add the `roundUrl` the
    command also returns.
    Never reconstruct the host, path, or round query: the CLI resolves the
-   configured server, including self-hosted installations. See
+   configured server, including self-hosted installations. A render returns
+   `reportUrl` instead, the page's `file://` link. See
    [Final handoff](../SKILL.md#final-handoff-mandatory).
 
 ## result.json schema

@@ -120,7 +120,7 @@ Any coding agent that can load skills and drive the surface you want to check. U
   <picture><source media="(prefers-color-scheme: dark)" srcset="https://unpkg.com/@lobehub/icons-static-png@1.97.1/dark/grok.png"><img src="https://unpkg.com/@lobehub/icons-static-png@1.97.1/light/grok.png" alt="Grok Build" title="Grok Build" width="32" height="32"></picture>
 </p>
 
-Web checks run in a browser, CLI checks in the terminal, and native checks on the desktop or in the iOS Simulator. LobeHub provides the reporting and review workspace. You keep using your preferred agent.
+Web checks run in a browser, CLI checks in the terminal, and native checks on the desktop or in the iOS Simulator. Without an account, the report opens locally in your browser; LobeHub adds the shared review workspace. You keep using your preferred agent.
 
 ## Where it runs
 
@@ -144,7 +144,16 @@ The same report, on the surface your product uses. A web flow, a command, a desk
 
 ## Sharing and storage
 
-Reports and their evidence are published to LobeHub. Each report has its own link.
+### Local reports, no account needed
+
+Until you sign in to LobeHub, nothing leaves your machine. The agent renders each acceptance into one `report.html` next to its rounds in `.acceptances/`: the same page as the hosted report, with checks, screenshots, before/after pairs, recordings with chapters, and round history.
+
+- **Review in the page.** Accept a check, send one back with a comment, or circle a region on a screenshot. Click **Save reviews** when you are done; the agent reads your decisions with `lh acceptance feedback` and works from them in the next round.
+- **Share when you need other eyes.** Comments, mentions, and a link your team can open need LobeHub. Sign in with `lh login`, then `lh acceptance publish .acceptances/<subject>` publishes every round in order and carries your review decisions over.
+
+### Published reports
+
+Once you are signed in, reports and their evidence are published to LobeHub by default. Each report has its own link.
 
 - **Reviewers only need the link.** They open the report in a browser, with nothing to install, and can comment on checks and screenshots once signed in to LobeHub. Your agent can read everyone's comments with `lh acceptance feedback` and work from them in the next round.
 - **Look before you share.** Anyone with the link can open a report from your personal account, while reports published to a workspace are members-only. A setting to limit who can open each report is on the way. The [evidence rules](skills/acceptance/references/evidence.md#artifact-safety) tell your agent to leave out credentials and unrelated windows, but only you know what else is sensitive. Send the link to the people who need it.
@@ -176,13 +185,14 @@ Read https://app.lobehub.com/acceptance/skill.md and follow the instructions to 
 
 ### `B` LobeHub CLI
 
-Requires Node.js 22.15 or later and a LobeHub account. Run these commands in your project and finish the browser sign-in before installing the skill:
+Requires Node.js 22.15 or later. Run these commands in your project:
 
 ```bash
 npm install -g @lobehub/cli
-lh login
 lh acceptance install
 ```
+
+Reports stay local until you sign in. To publish them for team review, run `lh login` and finish the browser sign-in.
 
 The skill is installed in `.agents/skills/acceptance` from this repository's default branch. Existing files are skipped unless you pass `--force`.
 
@@ -226,7 +236,7 @@ The `#` selects a Git ref; `@` in an `owner/repo@name` source selects a skill na
 
 > [!TIP]
 >
-> To publish reports and evidence, also install the LobeHub CLI and sign in using the commands in [`B`](#b-lobehub-cli).
+> Reports are rendered by the LobeHub CLI: install it with the commands in [`B`](#b-lobehub-cli). Sign in only when you want to publish them for team review.
 
 ### `D` Claude Code plugin
 
@@ -237,7 +247,7 @@ In Claude Code, add this repository's marketplace and install the plugin:
 /plugin install acceptance@acceptance
 ```
 
-The plugin bundles the same `skills/acceptance` skill and its supporting resources. Invoke it with `/acceptance:acceptance`, or ask Claude to verify a delivery and collect evidence. To publish reports and evidence, install the `lh` CLI and sign in as in [`B`](#b-lobehub-cli). The plugin does not install the CLI.
+The plugin bundles the same `skills/acceptance` skill and its supporting resources. Invoke it with `/acceptance:acceptance`, or ask Claude to verify a delivery and collect evidence. Reports need the `lh` CLI from [`B`](#b-lobehub-cli); sign in only to publish them. The plugin does not install the CLI.
 
 To update a plugin installed this way, run these commands in Claude Code:
 
