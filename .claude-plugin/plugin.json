@@ -1,7 +1,7 @@
 {
   "name": "acceptance",
-  "version": "0.9.0",
-  "description": "Verify features and fixes against requirements, collect product evidence, and publish results for review with LobeHub.",
+  "version": "0.10.0",
+  "description": "Verify features and fixes against requirements, collect product evidence, and review the results in a local report or publish them for team review with LobeHub.",
   "author": {
     "name": "LobeHub",
     "url": "https://lobehub.com"

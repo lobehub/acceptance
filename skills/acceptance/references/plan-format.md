@@ -1,7 +1,8 @@
 # Plan-driven rounds — read the plan, capture, ingest into its round
 
 Use this path only when the invocation handed you an operation id: a verify plan
-already exists and its round is waiting. Everything except where the checks come
+already exists and its round is waiting. Operation plans live on LobeHub, so this
+path always publishes — it has no local render. Everything except where the checks come
 from and where the round lands is the authored path in [report.md](./report.md):
 the same `new_round` directory, `result.json`, `proposal.md`, assets, and capture
 discipline — surface guides, recordings with [chapters](./video-chapters.md),

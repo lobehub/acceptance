@@ -31,8 +31,8 @@ skill wins.
 
 `.agents/acceptance/` is **committed** (the adapter and the project living logs are
 shared, versioned team assets). The report output directory `.acceptances/` is
-**gitignored** — reports are per-run artifacts, published to LobeHub Acceptance,
-not committed.
+**gitignored** — reports are per-run artifacts, published to LobeHub Acceptance
+or rendered locally, not committed.
 
 ## Fixed section skeleton
 
