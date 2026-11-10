@@ -19,7 +19,7 @@ calls out the desktop shell.
 ```bash
 agent-browser --cdp 9222 snapshot -i
 agent-browser --cdp 9222 get url # sanity-check you attached to the app
-agent-browser --cdp 9222 screenshot ./proof/desktop-state.png
+agent-browser --cdp 9222 screenshot "$REPORT_DIR/assets/desktop-state.png" # absolute: the daemon ignores your cwd
 ```
 
 3. Auth: a desktop app usually keeps its own persistent login state in its

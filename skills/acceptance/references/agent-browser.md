@@ -52,6 +52,10 @@ when you need to parse output first (e.g. snapshot to discover refs, then intera
 ## Essential commands
 
 ```bash
+# Every output path must be absolute: the daemon resolves a relative path against
+# the directory it started in, not your cwd (probe-mock-patterns D1).
+OUT="$REPORT_DIR/assets"
+
 # Navigation
 agent-browser open <url>              # Navigate (aliases: goto, navigate)
 agent-browser close                   # Close browser
@@ -89,12 +93,12 @@ agent-browser wait --fn "!document.body.innerText.includes('Loading...')"  # Wai
 agent-browser wait "#spinner" --state hidden  # Wait for element to disappear
 
 # Downloads
-agent-browser download @e1 ./file.pdf          # Click an element to trigger a download
-agent-browser wait --download ./output.zip     # Wait for a download to finish
+agent-browser download @e1 "$OUT/file.pdf"      # Click an element to trigger a download
+agent-browser wait --download "$OUT/output.zip" # Wait for a download to finish
 
 # Diff (compare page states)
 agent-browser diff snapshot                          # Current vs the last snapshot
-agent-browser diff screenshot --baseline before.png  # Visual pixel diff
+agent-browser diff screenshot --baseline "$OUT/before.png"  # Visual pixel diff
 agent-browser diff url <url1> <url2>                 # Compare two pages
 
 # Network (key for full-stack evidence)
@@ -102,7 +106,7 @@ agent-browser network requests                 # Inspect tracked requests
 agent-browser network requests --type xhr,fetch  # Filter by resource type
 agent-browser network requests --method POST   # Filter by HTTP method
 agent-browser network har start                # Start HAR recording
-agent-browser network har stop ./capture.har   # Stop and save HAR file
+agent-browser network har stop "$OUT/capture.har" # Stop and save HAR file
 
 # Viewport & device emulation
 agent-browser set viewport 1920 1080          # Set viewport size (default 1280x720)
@@ -110,10 +114,10 @@ agent-browser set viewport 1920 1080 2        # 2x retina
 agent-browser set device "iPhone 14"          # Emulate device (viewport + UA)
 
 # Capture (evidence!)
-agent-browser screenshot ./shot.png   # Screenshot to a path
+agent-browser screenshot "$OUT/shot.png"  # Screenshot to a path
 agent-browser screenshot --full       # Full page screenshot
 agent-browser screenshot --annotate   # Annotated screenshot with numbered element labels
-agent-browser pdf output.pdf          # Save as PDF
+agent-browser pdf "$OUT/output.pdf"   # Save as PDF
 
 # Dialogs (alert, confirm, prompt, beforeunload)
 agent-browser dialog accept           # Accept dialog
@@ -244,9 +248,10 @@ Providers: `agentcore`, `browserbase`, `browserless`, `browseruse`, `kernel`.
   re-snapshot or restart.
 - **`snapshot -i` doesn't find contenteditable** — use `snapshot -i -C` for rich
   text editors; `fill` doesn't work on contenteditable, use `type`.
-- **Screenshots written to a path are easiest** — `agent-browser screenshot
-./proof/x.png` then upload that path; with no path they land in
-  `~/.agent-browser/tmp/screenshots/`.
+- **Screenshots written to an absolute path are easiest** — `agent-browser
+  screenshot "$REPORT_DIR/assets/x.png"` then upload that path; with no path they
+  land in `~/.agent-browser/tmp/screenshots/`. A relative path resolves against
+  the daemon's start directory, not your cwd.
 - **Dialogs block all commands** — if commands time out, check
   `agent-browser dialog status`.
 - **Default timeout is 25s** — override with `AGENT_BROWSER_DEFAULT_TIMEOUT` (ms)

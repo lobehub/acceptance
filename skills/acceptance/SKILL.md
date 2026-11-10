@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.10.0"
+  version: "0.10.1"
 description: >
   Verify delivery outcomes on the real product, capture inspected evidence,
   and deliver an acceptance report with the lh CLI: published to LobeHub when

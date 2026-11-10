@@ -26,7 +26,7 @@ export AGENT_BROWSER_IDLE_TIMEOUT_MS=1800000 # set this before the first call; t
 agent-browser --session $SESSION open "http://localhost:3000/"
 agent-browser --session $SESSION snapshot -i
 # interact via refs, then capture
-agent-browser --session $SESSION screenshot ./proof/state.png
+agent-browser --session $SESSION screenshot "$REPORT_DIR/assets/state.png" # absolute: the daemon ignores your cwd
 ```
 
 Use the authenticated session as the evidence source. Do **not** use a separate
@@ -43,8 +43,8 @@ SESSION=app
 agent-browser --session $SESSION network har start
 # ... drive the scenario that triggers the API ...
 agent-browser --session $SESSION network requests --type xhr,fetch # inspect calls
-agent-browser --session $SESSION network har stop ./proof/capture.har
-agent-browser --session $SESSION screenshot ./proof/result.png
+agent-browser --session $SESSION network har stop "$REPORT_DIR/assets/capture.har"
+agent-browser --session $SESSION screenshot "$REPORT_DIR/assets/result.png" # absolute: the daemon ignores your cwd
 ```
 
 Upload the screenshot (`--type screenshot`) and the network proof (the HAR as
