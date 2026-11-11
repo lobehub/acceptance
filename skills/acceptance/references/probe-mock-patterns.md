@@ -249,9 +249,13 @@ derive(item))`) captures the value at first render. When a persisted cache hydra
 
 ## D. agent-browser / CDP mechanics
 
-- **D1. `screenshot` honours a relative path — but still pass an absolute one.** A
-  relative path saves to the caller's cwd; the cwd of a step in a longer script is
-  easy to lose track of, so an absolute path is the right habit.
+- **D1. Pass agent-browser an absolute output path, including inside scripts.** The
+  session daemon writes the file and resolves a relative path against the
+  directory the daemon started in, not the caller's cwd: `open` in checkout A, then
+  `cd /tmp/shots && agent-browser screenshot rel.png` writes `A/rel.png`. This
+  holds for `screenshot`, `pdf`, `network har stop` and `state save` (0.42.0), so
+  treat every agent-browser output path the same; a relative one can land in
+  another checkout. Write to `"$REPORT_DIR/assets/x.png"` or a `mktemp -d` directory.
 - **D2. The CDP port can be ephemeral.** A browser launched with
   `--remote-debugging-port=0` picks a random port; read `DevToolsActivePort` in the
   user-data-dir, or use `agent-browser get cdp-url` (note: `cdp-url` is a `get`

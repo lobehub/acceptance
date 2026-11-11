@@ -24,9 +24,10 @@ agent-browser --session app --restore open https://app.example.com/login
 # Complete login once, then reuse the same session ID and --restore.
 agent-browser --session app --restore open https://app.example.com/dashboard
 
-# Playwright-style storage state.
-agent-browser state save auth.json
-agent-browser state load auth.json
+# Playwright-style storage state. Use an absolute path: the daemon ignores your cwd.
+AUTH_DIR=$(mktemp -d)
+agent-browser state save "$AUTH_DIR/auth.json"
+agent-browser state load "$AUTH_DIR/auth.json"
 
 # Encrypted credential vault and form replay.
 echo "$PASSWORD" | agent-browser auth save app \
