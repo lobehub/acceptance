@@ -35,6 +35,8 @@ function host(root, options = {}) {
     freePages = 400000,
     memsize = 17179869184,
     pressure = '1',
+    availablePct = 50,
+    swapFreeKb = 0,
   } = options;
   const bin = path.join(root, 'bin');
   mkdirSync(bin, { recursive: true });
@@ -42,6 +44,16 @@ function host(root, options = {}) {
   const script = (name, body) =>
     writeFileSync(path.join(bin, name), `#!/bin/sh\n${body}\n`, { mode: 0o755 });
   script('uname', `echo '${platform}'`);
+  if (platform === 'Linux') {
+    writeFileSync(path.join(root, 'meminfo'),
+      `MemTotal: 104857600 kB\nMemAvailable: ${1048576 * availablePct} kB\nSwapTotal: 4194304 kB\nSwapFree: ${swapFreeKb} kB\n`);
+    const awk = execFileSync('/bin/sh', ['-c', 'command -v awk'], { encoding: 'utf8' }).trim();
+    // Substitute only the kernel input; execute the real awk parser and policy.
+    script('awk', `if [ "$#" -eq 3 ] && [ "$3" = /proc/meminfo ]; then
+      set -- "$1" "$2" "$GUARD_TEST_ROOT/meminfo"
+    fi
+    exec '${awk}' "$@"`);
+  }
   script('sysctl', `case "$2" in
     vm.swapusage) echo '${swap}' ;;
     hw.memsize) echo ${memsize} ;;
@@ -157,30 +169,30 @@ test('warning pressure cannot downgrade a red process budget or its exit code', 
   assert.deepEqual(output.breaches.map(({ tier }) => tier), ['red', 'yellow']);
 });
 
-// Exercise the real /proc readers on Linux CI without applying memory pressure.
-for (const [yellow, red, tier, code, metric] of [
-  ['swap=101,free=-1', 'swap=101,free=-1', 'green', 0, null],
-  ['swap=0,free=-1', 'swap=101,free=-1', 'yellow', 10, 'swap'],
-  ['swap=101,free=-1', 'swap=0,free=-1', 'red', 20, 'swap'],
-  ['swap=101,free=100', 'swap=101,free=-1', 'yellow', 10, 'free'],
-  ['swap=101,free=-1', 'swap=101,free=100', 'red', 20, 'free'],
+// Vary available memory and swap independently, without pressuring the host.
+for (const [availablePct, swapFreeKb, tier, code] of [
+  [50, 0, 'green', 0],
+  [25, 4194304, 'yellow', 10],
+  [10, 4194304, 'red', 20],
+  [0, 0, 'red', 20],
 ]) {
-  test(`Linux preserves ${metric ?? 'healthy'} thresholds: ${tier}`, {
+  test(`Linux tiers ${availablePct}% available memory with ${swapFreeKb} KiB free swap: ${tier}`, {
     skip: process.platform !== 'linux',
   }, async () => {
     const { root, scripts } = project();
     const result = await run(
       path.join(scripts, 'resource-guard.sh'),
-      ['check', '--json', '--yellow', yellow, '--red', red],
-      host(root, { platform: 'Linux' }),
+      ['check', '--json'],
+      host(root, { platform: 'Linux', availablePct, swapFreeKb }),
     );
     assert.equal(result.code, code, result.stdout + result.stderr);
     const output = JSON.parse(result.stdout);
     assert.equal(output.tier, tier);
     assert.equal(output.pressure, null);
     assert.equal(output.platform, 'Linux');
-    assert.ok(output.free.pct >= 0 && output.free.pct <= 100);
-    assert.deepEqual(output.breaches.map(({ metric }) => metric), metric ? [metric] : []);
+    assert.equal(output.free.pct, availablePct);
+    assert.equal(output.swap.usedPct, swapFreeKb === 0 ? 100 : 0);
+    assert.deepEqual(output.breaches.map(({ metric }) => metric), tier === 'green' ? [] : ['free']);
   });
 }
 
