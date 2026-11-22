@@ -2,7 +2,7 @@
 name: acceptance
 license: Apache-2.0
 metadata:
-  version: "0.10.3"
+  version: "0.10.4"
 description: >
   Verify delivery outcomes on the real product, capture inspected evidence,
   and deliver an acceptance report with the lh CLI: published to LobeHub when
@@ -81,7 +81,8 @@ may proceed. There is no per-case approval loop or repeated full review after fi
 
 Follow-up rounds have no independent checker gate. Assign new artifact inspection
 to one capable owner and re-run only affected cases; before recapturing a visual
-case, write its fixture data into the round's review notes
+case, write its fixture data into the round's review notes, and reuse the test
+data identifiers earlier rounds recorded there
 ([report.md](references/report.md#workflow)). If delegation is unavailable,
 use one bounded execution context and disclose missing independent review.
 If model selection is unavailable, record the actual or inherited model rather
@@ -274,6 +275,7 @@ excuse below was made in a real round.
 | "The black frame is probably display sleep / a permission"                                             | Measure first: pixel brightness, the permission bit, an A/B with one variable toggled. Publish "confirmed by X" or "suspected", never a guess. |
 | "Let me ask how they want it run" / "I'll click Sign in and you authorize" / "too small to screenshot" | Environment mechanics are yours: full isolated run, auth by direct injection (never an interactive login — it hijacks the user's browser), a screenshot for every user-facing change. Ask only about the product decision. |
 | "One more config edit and the env will boot" / "I'll mock it" / "I'll drive the rest myself"           | Timebox. Inventory running instances, probe for the real capability before mocking (a mock that records nothing is not in the path), re-delegate a dead subagent's remaining steps. Search the project layer (`.agents/acceptance/`, including `references/`) for the exact error before asking; if it has no fix, revert experiments and ask for the missing prerequisite. |
+| "The user doubts this verdict, so it must be wrong"                                                    | Re-check the case against its recorded expectation basis and evidence first. Change the verdict only on new evidence or a wrong basis, and name which; otherwise explain the verdict from that basis. |
 | "The fix is in and tests pass — verified"                                                              | Reproduce the failure's precondition first, then verify with it held. A run that cannot fail proves nothing; "reproduces sometimes" means an unnamed precondition. When the mocked seam is the suspect, drop the mock. |
 
 ## Pick the surface by the user-visible outcome

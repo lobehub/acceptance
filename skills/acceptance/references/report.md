@@ -117,6 +117,15 @@ supersedes? }`.
    present (devices listed), not the empty state. An empty or single-item
    fixture is allowed only when that state is itself the criterion, and the
    `method` says so.
+   **Each item follows the user's operation chain to its last screen**: `method`
+   reads as user action → screen it opens → next action, and `expected` is the
+   result on the final screen. When a step opens a dialog, drawer or preview that
+   offers a further action, the item continues through it: "open a table row's
+   detail drawer" ends at "edit a field, save, and the drawer and the table row
+   show the new value", not at "the drawer opens". Record each item's
+   **expectation basis** — a code location (`path:line`), a design, or the
+   current production behavior — in the requirement-to-case mapping
+   ([acceptance-checker.md](acceptance-checker.md#shared-contract)).
    Every item is an outcome the reader can judge — never a programmatic gate
    ([what is not an acceptance check](#what-is-not-an-acceptance-check)).
    **Use an acquired CLI schema or the linked report schema rather than reconstructing it**: a
@@ -129,6 +138,11 @@ supersedes? }`.
    execution owner carries the agreed plan forward using its existing context;
    before recapturing a visual case, it writes that case's fixture data into the
    round's review notes and seeds to it, since no checker reviews the plan again.
+   **Every round's review notes record the test data later rounds reuse**: share
+   links, conversation or topic ids, test account names, and the commands that
+   seeded the data — never passwords, tokens or session cookies
+   ([evidence.md](evidence.md#artifact-safety)). A follow-up round reads them first and
+   reuses that data instead of searching for or recreating it.
 2. **Collect evidence into `assets/` as you test.** Screenshots must be
    **visually verified by their designated inspector before supporting a pass**.
    In the first round this is normally the checker; the runner captures and
