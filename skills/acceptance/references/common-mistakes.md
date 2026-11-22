@@ -44,6 +44,7 @@ Apply the same shape to the project layer's file. Never narrate the reading.
 - **M28** Non-visual behavioral claims carry two text artifacts in the same round: reasoning, then execution record.
 - **M30** Electron evidence is the visible viewport, never `screenshot --full`.
 - **M31** A visual case is shot with representative fixture data — several groups of several items, long titles, populated settings — stated in its plan `method` or the round's review notes; empty or single-item data only when that state is the criterion.
+- **M32** A check item runs to the last screen of the user's operation chain — every dialog, drawer or preview it opens that offers a further action is followed through to the final result.
 
 ## Entries
 
@@ -196,3 +197,17 @@ the plan review and repeat it unseen.
 lengths, state mix) as real users see it — in the plan `method`, or for a frozen
 plan or a follow-up recapture, in the round's review notes — and seed to it.
 Empty or single-item data only when that state is the criterion.
+
+### M32 — A check item that stops at the first opened screen
+
+`since 2026-11-22` · `holds-while: always`
+
+**Trap:** the item ends where the entry opens something — "open the image set,
+three thumbnails show" — while that screen still offers the action users take
+next (open a thumbnail at full size). The unchecked last step is where the
+defect lives, and follow-up rounds repeat the truncated item.
+
+**Rule:** write each item as user action → screen → next action until the last
+screen of the chain, with `expected` on that final screen and its basis recorded
+([report.md](report.md#workflow)). A table row that opens a detail drawer with
+editable fields ends at "edit, save, drawer and row show the new value".
